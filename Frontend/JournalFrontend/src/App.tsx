@@ -1,27 +1,58 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-
-import LoginPage from "./pages/AuthPages/LoginPage"
-import LandinPage from "./pages/LandinPage"
-import NewEntryPage from "./pages/NewEntryPage"
-import SignupPage from "./pages/AuthPages/SignupPage"
-import EntriesPage from "./pages/EntriesPage"
-import HomePage from "./pages/Home"
-import EditJournal from "./pages/EditJournal"
+import LoginPage from "./pages/AuthPages/LoginPage";
+import LandinPage from "./pages/LandinPage";
+import NewEntryPage from "./pages/NewEntryPage";
+import SignupPage from "./pages/AuthPages/SignupPage";
+import EntriesPage from "./pages/EntriesPage";
+import HomePage from "./pages/Home";
+import EditJournal from "./pages/EditJournal";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoutes from "./components/ProtectedRoutes";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandinPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/entries" element={<EntriesPage />} />
-        <Route path="/newentry" element={<NewEntryPage />} />
-        <Route path="/editjournal" element={<EditJournal />} />
-      </Routes>
-    </BrowserRouter>
-    
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandinPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoutes>
+                <HomePage />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/entries"
+            element={
+              <ProtectedRoutes>
+                <EntriesPage />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/newentry"
+            element={
+              <ProtectedRoutes>
+                <NewEntryPage />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/editjournal"
+            element={
+              <ProtectedRoutes>
+                <EditJournal />
+              </ProtectedRoutes>
+            }
+          />
+          {/*  */}
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 export default App;

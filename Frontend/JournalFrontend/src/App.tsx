@@ -42,7 +42,7 @@ function App() {
             }
           />
           <Route
-            path="/editjournal"
+            path="/editjournal/:id"
             element={
               <ProtectedRoutes>
                 <EditJournal />

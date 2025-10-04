@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
+  // CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -54,11 +54,9 @@ export default function LoginPage() {
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
-          <CardAction>
-            <Button variant="link">
-              <Link to="/signup">Sign up</Link>
-            </Button>
-          </CardAction>
+          {/* <CardAction>
+            
+          </CardAction> */}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -69,7 +67,10 @@ export default function LoginPage() {
                   id="loginIdentifier"
                   value={formData.loginIdentifier}
                   onChange={(e) =>
-                    setFormData({ ...formData, loginIdentifier: e.target.value })
+                    setFormData({
+                      ...formData,
+                      loginIdentifier: e.target.value,
+                    })
                   }
                   required
                 />
@@ -94,8 +95,8 @@ export default function LoginPage() {
           <Button type="submit" onClick={handleSubmit} className="w-full">
             Login
           </Button>
-          <Button variant="outline" className="w-full">
-            Login with Google
+          <Button variant="link">
+            <Link to="/signup">No account? Sign up</Link>
           </Button>
         </CardFooter>
       </Card>

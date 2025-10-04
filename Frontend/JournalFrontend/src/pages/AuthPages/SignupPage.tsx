@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from '../../context/AuthContext';
 import {
   Card,
-  CardAction,
+  // CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Assuming shadcn/ui Select is available
@@ -94,9 +95,9 @@ export default function SignupPage() {
           <CardDescription>
             Create your account to get started
           </CardDescription>
-          <CardAction>
-            <Button variant="link" onClick={() => navigate('/login')}>Already have an account? Login</Button>
-          </CardAction>
+          {/* <CardAction>
+            
+          </CardAction> */}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -200,6 +201,7 @@ export default function SignupPage() {
           <Button type="submit" onClick={handleSubmit} className="w-full" disabled={loading}>
             {loading ? 'Signing up...' : 'Sign Up'}
           </Button>
+          <Button variant="link" onClick={() => navigate('/login')}>Already have an account? Login</Button>
           {/* Optional: Add Google signup button if supported */}
         </CardFooter>
       </Card>

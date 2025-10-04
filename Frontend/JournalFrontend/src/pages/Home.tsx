@@ -1,3 +1,13 @@
+import AppLayout from "@/components/layouts/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+
 export default function HomePage() {
-  return <div>Home</div>
+  return (
+    <SidebarProvider>
+      <AppLayout>
+        <SidebarTrigger />
+      
+      </AppLayout>
+    </SidebarProvider>
+  );
 }

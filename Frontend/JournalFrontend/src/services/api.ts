@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { type JournalEntryCreateDto } from '../models/journal';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5218/api'; // Default to backend URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'; // Default to backend URL
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');

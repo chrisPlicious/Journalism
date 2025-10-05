@@ -58,7 +58,7 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5218/api/auth/register', { // Adjust backend URL
+      const response = await fetch('http://localhost:8080/api/auth/register', { // Adjust backend URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

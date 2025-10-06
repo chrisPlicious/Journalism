@@ -8,7 +8,9 @@ import React, {
 
 interface AuthContextType {
   token: string | null;
-  login: (token: string) => void;
+  username: string | null;
+  email: string | null;
+  login: (token: string, username: string, email: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -21,15 +23,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
   );
+  const [username, setUsername] = useState<string | null>(
+    localStorage.getItem("username")
+  );
+  const [email, setEmail] = useState<string | null>(
+    localStorage.getItem("email")
+  );
 
-  const login = (newToken: string) => {
+  const login = (newToken: string, newUsername: string, newEmail: string) => {
     setToken(newToken);
+    setUsername(newUsername);
+    setEmail(newEmail);
     localStorage.setItem("token", newToken);
+    localStorage.setItem("username", newUsername);
+    localStorage.setItem("email", newEmail);
   };
 
   const logout = () => {
     setToken(null);
+    setUsername(null);
+    setEmail(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
   };
 
   const isAuthenticated = !!token;
@@ -39,7 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ token, username, email, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

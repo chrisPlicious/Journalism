@@ -1,12 +1,12 @@
 "use client";
 
 import type React from "react";
-
 import { useRef, useState, useEffect, forwardRef } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bold, Italic, Underline } from "lucide-react";
+import { ButtonGroup } from "../ui/button-group";
+import { Bold, Italic, Underline, Undo2, Redo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TextEditorProps {
@@ -21,28 +21,48 @@ interface TextEditorProps {
 const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
   ({ value = "", onChange, placeholder, className, disabled, error }, ref) => {
     const editorRef = useRef<HTMLDivElement | null>(null);
+
+    // history & redo stacks
+    const [history, setHistory] = useState<string[]>([]);
+    const [future, setFuture] = useState<string[]>([]);
+
     const [active, setActive] = useState<string[]>([]);
 
-    useEffect(() => {
-      if (editorRef.current) {
-        const currentContent = editorRef.current.innerHTML;
-        if (currentContent !== value) {
-          editorRef.current.innerHTML = value;
-          // Trigger onChange if the content was cleared externally (like form reset)
-          if (value === "" && currentContent !== "" && onChange) {
-            onChange("");
-          }
+    const listenersRef = useRef<
+      | {
+          el?: HTMLDivElement | null;
+          beforeInput?: EventListenerOrEventListenerObject;
+          keydown?: EventListenerOrEventListenerObject;
         }
+      | undefined
+    >(undefined);
+
+    // when external value changes, update editor and clear history
+    useEffect(() => {
+      if (editorRef.current && editorRef.current.innerHTML !== value) {
+        editorRef.current.innerHTML = value;
+        setHistory([]);
+        setFuture([]);
       }
-    }, [value, onChange]);
+    }, [value]);
 
+    const pushToHistory = (snapshot: string) => {
+      setHistory((prev) => {
+        const last = prev[prev.length - 1];
+        if (last === snapshot) return prev;
+        const MAX = 150;
+        const next = [...prev, snapshot];
+        return next.length > MAX ? next.slice(next.length - MAX) : next;
+      });
+      setFuture([]);
+    };
 
-    
     function applyCommand(command: string) {
+      if (!editorRef.current) return;
+      pushToHistory(editorRef.current.innerHTML);
       document.execCommand(command, false, "");
-      if (onChange && editorRef.current) {
-        onChange(editorRef.current.innerHTML);
-      }
+      const content = editorRef.current.innerHTML;
+      onChange?.(content);
     }
 
     function onToggleChange(newVal: string[] | null) {
@@ -62,33 +82,83 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
       if (onChange && editorRef.current) {
         const content = editorRef.current.innerHTML;
         onChange(content);
-
-        // Debug logging to help troubleshoot validation issues
-        console.log("[v0] Text editor content changed:", {
-          htmlContent: content,
-          textContent: editorRef.current.textContent?.trim(),
-          isEmpty: !content || content.trim() === "" || content === "<br>",
-        });
       }
     };
 
     const handlePaste = (e: React.ClipboardEvent) => {
       e.preventDefault();
+      if (!editorRef.current) return;
+      pushToHistory(editorRef.current.innerHTML);
       const text = e.clipboardData.getData("text/plain");
       document.execCommand("insertText", false, text);
       handleInput();
     };
 
-    const handleBlur = () => {
-      if (onChange && editorRef.current) {
-        onChange(editorRef.current.innerHTML);
-      }
+    const handleClear = () => {
+      if (!editorRef.current) return;
+      pushToHistory(editorRef.current.innerHTML);
+      editorRef.current.innerHTML = "";
+      setActive([]);
+      onChange?.("");
     };
 
+    const handleUndo = () => {
+      if (!editorRef.current || history.length === 0) return;
+      const prev = history[history.length - 1];
+      const current = editorRef.current.innerHTML;
+      setHistory((h) => h.slice(0, -1));
+      setFuture((f) => [current, ...f]);
+      editorRef.current.innerHTML = prev;
+      onChange?.(prev);
+      try {
+        const range = document.createRange();
+        range.selectNodeContents(editorRef.current);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      } catch {}
+    };
+
+    const handleRedo = () => {
+      if (!editorRef.current || future.length === 0) return;
+      const next = future[0];
+      const current = editorRef.current.innerHTML;
+      setFuture((f) => f.slice(1));
+      setHistory((h) => [...h, current]);
+      editorRef.current.innerHTML = next;
+      onChange?.(next);
+      try {
+        const range = document.createRange();
+        range.selectNodeContents(editorRef.current);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      } catch {}
+    };
+
+    useEffect(() => {
+      return () => {
+        if (listenersRef.current?.el && listenersRef.current.beforeInput) {
+          listenersRef.current.el.removeEventListener(
+            "beforeinput",
+            listenersRef.current.beforeInput
+          );
+        }
+        if (listenersRef.current?.el && listenersRef.current.keydown) {
+          listenersRef.current.el.removeEventListener(
+            "keydown",
+            listenersRef.current.keydown
+          );
+        }
+      };
+    }, []);
+
     return (
-      <Card className={cn("w-full", className)}>
+      <Card className={cn("w-full bg-zinc-50", className)}>
         <CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2">
             <ToggleGroup
               type="multiple"
               variant={"outline"}
@@ -132,16 +202,31 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
               </ToggleGroupItem>
             </ToggleGroup>
 
+            <ButtonGroup>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleUndo}
+                disabled={history.length === 0 || disabled}
+                aria-label="Undo (Ctrl/Cmd+Z)"
+              >
+                <Undo2 className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRedo}
+                disabled={future.length === 0 || disabled}
+                aria-label="Redo (Ctrl/Cmd+Y / Ctrl/Cmd+Shift+Z)"
+              >
+                <Redo2 className="w-4 h-4" />
+              </Button>
+            </ButtonGroup>
+
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                if (editorRef.current) {
-                  editorRef.current.innerHTML = "";
-                  if (onChange) onChange("");
-                }
-                setActive([]);
-              }}
+              onClick={handleClear}
               disabled={disabled}
             >
               Clear
@@ -150,11 +235,56 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
 
           <div
             ref={(node) => {
+              if (listenersRef.current?.el && listenersRef.current.el !== node) {
+                try {
+                  listenersRef.current.el.removeEventListener(
+                    "beforeinput",
+                    listenersRef.current.beforeInput!
+                  );
+                  listenersRef.current.el.removeEventListener(
+                    "keydown",
+                    listenersRef.current.keydown!
+                  );
+                } catch {}
+                listenersRef.current = undefined;
+              }
+
               editorRef.current = node;
               if (typeof ref === "function") {
                 ref(node);
               } else if (ref) {
-                ref.current = node;
+                (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+              }
+
+              if (node && !listenersRef.current) {
+                const beforeInput = (e: Event) => {
+                  try {
+                    pushToHistory((node as HTMLDivElement).innerHTML);
+                  } catch {}
+                };
+
+                const keydown = (e: KeyboardEvent) => {
+                  const z = e.key.toLowerCase() === "z";
+                  const y = e.key.toLowerCase() === "y";
+                  const isMeta = e.ctrlKey || e.metaKey;
+                  if (isMeta && z) {
+                    e.preventDefault();
+                    if (e.shiftKey) handleRedo();
+                    else handleUndo();
+                  } else if (isMeta && y) {
+                    e.preventDefault();
+                    handleRedo();
+                  }
+                };
+
+                node.addEventListener("beforeinput", beforeInput as EventListener);
+                node.addEventListener("keydown", keydown as EventListener);
+
+                listenersRef.current = {
+                  el: node,
+                  beforeInput,
+                  // keydown,
+                };
               }
             }}
             contentEditable={!disabled}
@@ -164,15 +294,13 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
               disabled && "opacity-50 cursor-not-allowed bg-muted"
             )}
             onInput={handleInput}
-            onBlur={handleBlur}
+            onBlur={() => {
+              if (onChange && editorRef.current) {
+                onChange(editorRef.current.innerHTML);
+              }
+            }}
             onPaste={handlePaste}
             data-placeholder={placeholder}
-            style={{
-              ...(placeholder &&
-                !value && {
-                  position: "relative",
-                }),
-            }}
             suppressContentEditableWarning={true}
           />
 

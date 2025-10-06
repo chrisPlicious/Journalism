@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { getJournals, deleteJournal, getJournalById } from "../services/api"; // Use your API
 import type { JournalEntryDto, JournalEntryDetailDto } from "../models/journal"; // Use your types
+import { useAuth } from "../context/AuthContext";
 import AppSidebar from "../components/layouts/app-sidebar"; // Use AppSidebar
 import { Button } from "@/components/ui/button";
+
 import {
   Select,
   SelectContent,
@@ -21,6 +23,7 @@ export default function EntriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [open, setOpen] = useState(false);
   const [detail, setDetail] = useState<JournalEntryDetailDto | null>(null);
+  const { username } = useAuth();
 
   useEffect(() => {
     getJournals()
@@ -88,7 +91,7 @@ export default function EntriesPage() {
       <SidebarInset>
         <div className="px-15 py-10 flex-1 items-center justify-center">
           <div className="flex-cols gap-5 items-center mb-6">
-            <h1 className="text-6xl font-bold">All Journal Entries</h1>
+            <h1 className="text-6xl font-bold">{username}'s Journal Entries</h1>
             <Select
               value={selectedCategory}
               onValueChange={setSelectedCategory}

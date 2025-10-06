@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Home, List, Plus, LogOut } from "lucide-react";
+import { Home, List, Plus, LogOut, ChevronsUpDown } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,11 +11,20 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "../../context/AuthContext";
 
 export default function AppSidebar() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, username, email } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -70,14 +79,53 @@ export default function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4 border-t border-slate-700 bg-zinc-900">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 w-full text-left focus:outline-none text-white hover:bg-gray-700 px-2 py-2 rounded-md"
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Logout</span>
-        </button>
+      <SidebarFooter className="bg-black text-white">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="bg-black text-white hover:bg-black hover:text-white"
+                >
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src="/placeholder.svg" alt={username || ""} />
+                    <AvatarFallback className="rounded-lg text-black ">{username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{username}</span>
+                    <span className="truncate text-xs">{email}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4 " />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side="bottom"
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarImage src="/placeholder.svg" alt={username || ""} />
+                      <AvatarFallback className="rounded-lg">{username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-semibold">{username}</span>
+                      <span className="truncate text-xs">{email}</span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

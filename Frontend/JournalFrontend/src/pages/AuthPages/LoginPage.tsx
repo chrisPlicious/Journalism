@@ -36,7 +36,7 @@ export default function LoginPage() {
       });
       const data = await response.json();
       if (response.ok) {
-        login(data.token);
+        login(data.token, data.username, data.email);
         navigate("/home");
       } else {
         setError(data.message || "Login failed");

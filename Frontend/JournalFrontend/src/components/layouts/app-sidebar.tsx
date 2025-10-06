@@ -37,7 +37,7 @@ export default function AppLayout({ children }: LayoutProps) {
   return (
     <SidebarProvider>
         <div className="flex h-screen">
-          <Sidebar className="border-r dark:border-slate-800 border-black w-64">
+          <Sidebar className="border-r dark:border-slate-800 border-black " >
             <SidebarContent className="bg-zinc-800">
               <SidebarGroup className="mb-6">
                 <SidebarGroupLabel>

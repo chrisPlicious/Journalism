@@ -21,6 +21,7 @@ import { useParams } from "react-router-dom";
 import { updateJournal, getJournalById } from "../services/api"; // Use your API
 import ShadcnTextEditor from "@/components/TextEditor/TextEditor";
 import { toast, Toaster } from "sonner";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function EditJournal() {
   const [title, setTitle] = useState("");
@@ -83,54 +84,56 @@ export default function EditJournal() {
   };
 
   return (
-    <AppLayout> {/* Use AppLayout */}
-      <Toaster richColors position="top-center" />
-      <div className="flex flex-1 items-center justify-center min-h-screen">
-        <Card className="w-7xl shadow-xl">
-          <CardHeader>
-            <CardTitle className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
-              Edit Journal Entry
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-3 space-y-0 gap-10 mt-4 mx-4">
-            <label className="scroll-m-20 text-2xl font-semibold tracking-tight">
-              Title
-            </label>
-            <label className="scroll-m-20 text-2xl font-semibold tracking-tight">
-              Category
-            </label>
-          </CardContent>
-          <CardContent className="grid grid-cols-3 space-y-4 gap-10 mx-4">
-            <Input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={
-                error.title ? "border-red-500 focus-visible:ring-red-500" : ""
-              }
-            />
-
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger
-                className={`w-full text-1xl ${
-                  error.category ? "border-red-500 focus:ring-red-500" : ""
-                }`}
-              >
-                <SelectValue placeholder="Choose a category" />
-              </SelectTrigger>
-              <SelectContent className="bg-white w-full text-1xl">
-                <SelectItem value="work">Work</SelectItem>
-                <SelectItem value="personal">Personal</SelectItem>
-                <SelectItem value="study">Study</SelectItem>
-                <SelectItem value="travel">Travel</SelectItem>
-              </SelectContent>
-            </Select>
-          </CardContent>
-          <CardContent>
-            <label className="scroll-m-20 text-2xl font-semibold tracking-tight">
-              Content
-            </label>
-            <ShadcnTextEditor
+    <SidebarProvider>
+      <AppLayout>
+        {" "}
+        {/* Use AppLayout */}
+        <Toaster richColors position="top-center" />
+        <div className="flex flex-1 items-center justify-center min-h-screen">
+          <Card className="w-7xl shadow-xl">
+            <CardHeader>
+              <CardTitle className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
+                Edit Journal Entry
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-3 space-y-0 gap-10 mt-4 mx-4">
+              <label className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                Title
+              </label>
+              <label className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                Category
+              </label>
+            </CardContent>
+            <CardContent className="grid grid-cols-3 space-y-4 gap-10 mx-4">
+              <Input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className={
+                  error.title ? "border-red-500 focus-visible:ring-red-500" : ""
+                }
+              />
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger
+                  className={`w-full text-1xl ${
+                    error.category ? "border-red-500 focus:ring-red-500" : ""
+                  }`}
+                >
+                  <SelectValue placeholder="Choose a category" />
+                </SelectTrigger>
+                <SelectContent className="bg-white w-full text-1xl">
+                  <SelectItem value="work">Work</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="study">Study</SelectItem>
+                  <SelectItem value="travel">Travel</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardContent>
+            <CardContent>
+              <label className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                Content
+              </label>
+              <ShadcnTextEditor
                 value={content}
                 onChange={setContent}
                 error={error.content}
@@ -138,19 +141,20 @@ export default function EditJournal() {
               {error.content && (
                 <p className="text-red-500">Content is required</p>
               )}
-          </CardContent>
-          <CardFooter className="mx-4 my-4">
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    </AppLayout>
+            </CardContent>
+            <CardFooter className="mx-4 my-4">
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? "Saving..." : "Save Changes"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </AppLayout>
+    </SidebarProvider>
   );
 }

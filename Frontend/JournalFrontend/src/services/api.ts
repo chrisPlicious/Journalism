@@ -47,3 +47,11 @@ export const deleteJournal = async (id: number) => {
   });
   return res.data;
 };
+
+// Get user profile
+export const getUserProfile = async () => {
+  const res = await axios.get(`${API_URL}/auth/profile`, {
+    headers: getAuthHeaders(),
+  });
+  return res.data;
+};

@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AppLayout from "@/components/layouts/app-sidebar"; // Use your AppLayout
-import { SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import {
   Select,
   SelectContent,
@@ -73,7 +73,6 @@ export default function NewEntryPage() {
         {" "}
         {/* Wrap with your AppLayout */}
         <Toaster richColors position="top-center" />
-        <SidebarTrigger />
         <div className="flex flex-1 items-center justify-center min-h-screen">
           <Card className="w-7xl shadow-xl">
             <CardHeader>

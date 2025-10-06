@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { getJournals, deleteJournal, getJournalById } from "../services/api"; // Use your API
 import type { JournalEntryDto, JournalEntryDetailDto } from "../models/journal"; // Use your types
-import AppLayout from "../components/layouts/app-sidebar"; // Use AppLayout
+import AppSidebar from "../components/layouts/app-sidebar"; // Use AppSidebar
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -14,7 +14,7 @@ import {
 import JournalDialog from "../components/Viewer/EntryView"; // Use customized dialog
 import { Separator } from "@/components/ui/separator";
 import { toast, Toaster } from "sonner";
-
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 export default function EntriesPage() {
   const [journals, setJournals] = useState<JournalEntryDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,81 +73,88 @@ export default function EntriesPage() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <p className="text-center mt-10">Loading...</p>
-      </AppLayout>
+      <SidebarProvider className="flex min-h-screen">
+        <AppSidebar />
+        <SidebarInset>
+          <p className="text-center mt-10">Loading...</p>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 
   return (
-    <AppLayout>
-      <Toaster richColors position="top-center" />
-      {" "}
-      {/* Wrap with AppLayout */}
-      <div className="py-10 px-25 flex-1">
-        <div className="flex-cols gap-5 items-center mb-6">
-          <h1 className="text-6xl font-bold">All Journal Entries</h1>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="text-[20px] font-bold bg-black text-white border-white w-50 mt-5">
-              <SelectValue placeholder="Filter by Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="work">Work</SelectItem>
-              <SelectItem value="personal">Personal</SelectItem>
-              <SelectItem value="study">Study</SelectItem>
-              <SelectItem value="travel">Travel</SelectItem>
-            </SelectContent>
-          </Select>
+    <SidebarProvider className="flex min-h-screen">
+      <AppSidebar />
+      <SidebarInset>
+        <div className="px-15 py-10 flex-1 items-center justify-center">
+          <div className="flex-cols gap-5 items-center mb-6">
+            <h1 className="text-6xl font-bold">All Journal Entries</h1>
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger className="text-[20px] font-bold bg-black text-white border-white w-50 mt-5">
+                <SelectValue placeholder="Filter by Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="work">Work</SelectItem>
+                <SelectItem value="personal">Personal</SelectItem>
+                <SelectItem value="study">Study</SelectItem>
+                <SelectItem value="travel">Travel</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Separator className="mb-6 h-[3px] shadow bg-neutral-500" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredJournals.length > 0 ? (
+              filteredJournals.map((entry) => (
+                <Card
+                  key={entry.id}
+                  className="flex flex-col justify-between border-neutral-800 bg-zinc-800 transform hover:scale-102 transition-transform duration-500"
+                >
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-semibold text-white">
+                      {entry.title}
+                    </CardTitle>
+                    <p className="text-sm text-gray-100">{entry.category}</p>
+                  </CardHeader>
+                  <CardFooter className="flex justify-between text-sm text-gray-100">
+                    <span>
+                      Created: {new Date(entry.createdAt).toLocaleDateString()}
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        className="bg-white text-black hover:bg-muted"
+                        onClick={() => handleOpen(true, entry.id)}
+                      >
+                        View
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDelete(entry.id)}
+                        disabled={loading}
+                      >
+                        {loading ? "Deleting..." : "Delete"}
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))
+            ) : (
+              <p className="col-span-full text-2xl text-center text-gray-400">
+                No journal entries found.
+              </p>
+            )}
+          </div>
+          <JournalDialog
+            entry={detail}
+            open={open}
+            onOpenChange={(o) => handleOpen(o)}
+          />
         </div>
-        <Separator className="mb-6 h-[3px] shadow bg-neutral-500" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJournals.length > 0 ? (
-            filteredJournals.map((entry) => (
-              <Card
-                key={entry.id}
-                className="flex flex-col justify-between border-neutral-800 bg-zinc-800 transform hover:scale-102 transition-transform duration-500"
-              >
-                <CardHeader>
-                  <CardTitle className="text-2xl font-semibold text-white">
-                    {entry.title}
-                  </CardTitle>
-                  <p className="text-sm text-gray-100">{entry.category}</p>
-                </CardHeader>
-                <CardFooter className="flex justify-between text-sm text-gray-100">
-                  <span>
-                    Created: {new Date(entry.createdAt).toLocaleDateString()}
-                  </span>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      className="bg-white text-black hover:bg-muted"
-                      onClick={() => handleOpen(true, entry.id)}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleDelete(entry.id)}
-                      disabled={loading}
-                    >
-                      {loading ? "Deleting..." : "Delete"}
-                    </Button>
-                  </div>
-                </CardFooter>
-              </Card>
-            ))
-          ) : (
-            <p className="col-span-full text-2xl text-center text-gray-400">
-              No journal entries found.
-            </p>
-          )}
-        </div>
-        <JournalDialog
-          entry={detail}
-          open={open}
-          onOpenChange={(o) => handleOpen(o)}
-        />
-      </div>
-    </AppLayout>
+        <Toaster richColors position="top-center" />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import type { JournalEntryDetailDto } from "../../models/journal"; // Use your type
 import { Link } from "react-router-dom"; // Use react-router-dom
 import { Button } from "@/components/ui/button";
+// import DOMPurify from 'dompurify';
 
 interface JournalDialogProps {
   entry: JournalEntryDetailDto | null;
@@ -75,7 +76,7 @@ export default function JournalDialog({
         {/* content - plain text, not HTML */}
         <div className="prose max-w-none text-black text-xl">
           {entry.content ? (
-            <p>{entry.content}</p>
+            <p dangerouslySetInnerHTML={{ __html: entry.content || ""}} />
           ) : (
             <p className="text-gray-400 italic">(No content)</p>
           )}

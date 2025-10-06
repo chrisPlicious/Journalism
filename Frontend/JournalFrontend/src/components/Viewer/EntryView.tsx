@@ -45,9 +45,9 @@ export default function JournalDialog({
       {/* if trigger was provided, use it as the DialogTrigger */}
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-      <DialogContent className="sm:max-w-5xl w-full max-h-[80vh] overflow-y-auto bg-white text-black">
+      <DialogContent className="sm:max-w-5xl w-full max-h-[80vh] overflow-y-auto bg-white text-black px-15 py-10">
         <DialogHeader>
-          <DialogTitle className="flex justify-between text-3xl font-bold pr-10">
+          <DialogTitle className="flex justify-between text-3xl font-bold ">
             {entry.title}
             <Link to={`/editjournal/${entry.id}`}>
               {/* Match your route */}
@@ -57,7 +57,7 @@ export default function JournalDialog({
             </Link>
           </DialogTitle>
           {/* Hidden description for accessibility (avoids missing-description warning) */}
-          <DialogDescription className="sr-only">   
+          <DialogDescription className="sr-only">
             Journal entry details for {entry.title}
           </DialogDescription>
         </DialogHeader>
@@ -73,10 +73,10 @@ export default function JournalDialog({
         </div>
 
         <Separator className="my-4" />
-        {/* content - plain text, not HTML */}
+
         <div className="prose max-w-none text-black text-xl">
           {entry.content ? (
-            <p dangerouslySetInnerHTML={{ __html: entry.content || ""}} />
+            <p dangerouslySetInnerHTML={{ __html: entry.content || "" }} />
           ) : (
             <p className="text-gray-400 italic">(No content)</p>
           )}

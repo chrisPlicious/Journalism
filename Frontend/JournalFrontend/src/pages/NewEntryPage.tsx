@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   Card,
   CardHeader,
@@ -17,6 +18,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from "@/components/ui/select";
 import { toast, Toaster } from "sonner";
 import { createJournal } from "../services/api";
@@ -28,6 +30,7 @@ export default function NewEntryPage() {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { username } = useAuth();
 
   const [error, setErrors] = useState({
     title: false,
@@ -44,16 +47,26 @@ export default function NewEntryPage() {
 
     setErrors(newErrors);
 
-    if (Object.values(newErrors).some(Boolean)) {
-      toast.error("Please fill in all fields"); // Replace with toast if added
+    // Collect all missing fields
+    const missingFields: string[] = [];
+    if (newErrors.title) missingFields.push("Title is required");
+    if (newErrors.category) missingFields.push("Category is required");
+    if (newErrors.content) missingFields.push("Content is required");
+
+    if (missingFields.length > 0) {
+      // Trigger a Sonner toast for each missing field
+      missingFields.forEach((msg) => {
+        toast.error(msg, { duration: 3000 });
+      });
       return;
     }
 
     try {
       setLoading(true);
       await createJournal({ title, category, content });
-      toast.success("Journal entry created successfully"); // Replace with toast
-      navigate("/entries"); // Navigate to entries after success
+      toast.success("Journal entry created successfully");
+      navigate("/entries");
+
       // Reset form
       setTitle("");
       setCategory("");
@@ -61,7 +74,7 @@ export default function NewEntryPage() {
       setErrors({ title: false, category: false, content: false });
     } catch (err) {
       console.error(err);
-      toast.error("Failed to create journal"); // Replace with toast
+      toast.error("Failed to create journal");
     } finally {
       setLoading(false);
     }
@@ -73,10 +86,10 @@ export default function NewEntryPage() {
       <SidebarInset>
         <Toaster richColors position="top-center" />
         <div className="flex flex-1 items-center justify-center min-h-screen">
-          <Card className="w-7xl shadow-xl">
+          <Card className="w-7xl shadow-xl bg-zinc-100">
             <CardHeader>
               <CardTitle className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
-                Add Journal Entry
+                What's on your mind, {username}?
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-3 space-y-0 gap-10 mt-4 mx-4">
@@ -87,18 +100,27 @@ export default function NewEntryPage() {
                 Category
               </label>
             </CardContent>
-            <CardContent className="grid grid-cols-3 space-y-4 gap-10 mx-4">
+            <CardContent className="grid grid-cols-3 space-y-0 gap-10 mx-4">
               <Input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className={
+                className={`bg-zinc-50 ${
                   error.title ? "border-red-500 focus-visible:ring-red-500" : ""
-                }
+                }`}
               />
-              <Select value={category} onValueChange={setCategory}>
+              <Select
+                value={category}
+                onValueChange={(val) => {
+                  if (val === "__clear__") {
+                    setCategory(""); // reset to empty → shows placeholder
+                  } else {
+                    setCategory(val);
+                  }
+                }}
+              >
                 <SelectTrigger
-                  className={`w-full text-1xl ${
+                  className={`w-full text-1xl bg-zinc-50${
                     error.category ? "border-red-500 focus:ring-red-500" : ""
                   }`}
                 >
@@ -109,6 +131,14 @@ export default function NewEntryPage() {
                   <SelectItem value="personal">Personal</SelectItem>
                   <SelectItem value="study">Study</SelectItem>
                   <SelectItem value="travel">Travel</SelectItem>
+
+                  <SelectSeparator />
+                  <SelectItem
+                    value="__clear__"
+                    className="text-red-500 font-bold flex justify-center"
+                  >
+                    Clear
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </CardContent>

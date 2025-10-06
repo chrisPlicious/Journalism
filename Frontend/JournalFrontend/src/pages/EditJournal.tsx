@@ -16,6 +16,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from "@/components/ui/select";
 import { useParams } from "react-router-dom";
 import { updateJournal, getJournalById } from "../services/api"; // Use your API
@@ -65,8 +66,16 @@ export default function EditJournal() {
 
     setErrors(newErrors);
 
-    if (Object.values(newErrors).some(Boolean)) {
-      toast.error("Please fill in all fields ❌");
+    const missingFields: string[] = [];
+    if (newErrors.title) missingFields.push("Title is required");
+    if (newErrors.category) missingFields.push("Category is required");
+    if (newErrors.content) missingFields.push("Content is required");
+
+    if (missingFields.length > 0) {
+      // Trigger a Sonner toast for each missing field
+      missingFields.forEach((msg) => {
+        toast.error(msg, { duration: 3000 });
+      });
       return;
     }
 
@@ -89,7 +98,7 @@ export default function EditJournal() {
       <SidebarInset>
         <Toaster richColors position="top-center" />
         <div className="flex flex-1 items-center justify-center min-h-screen">
-          <Card className="w-7xl shadow-xl">
+          <Card className="w-7xl shadow-xl bg-zinc-100">
             <CardHeader>
               <CardTitle className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
                 Edit Journal Entry
@@ -108,13 +117,22 @@ export default function EditJournal() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className={
+                className={`bg-zinc-50 ${
                   error.title ? "border-red-500 focus-visible:ring-red-500" : ""
-                }
+                }`}
               />
-              <Select value={category} onValueChange={setCategory}>
+              <Select
+                value={category}
+                onValueChange={(val) => {
+                  if (val === "__clear__") {
+                    setCategory(""); // reset to empty → shows placeholder
+                  } else {
+                    setCategory(val);
+                  }
+                }}
+              >
                 <SelectTrigger
-                  className={`w-full text-1xl ${
+                  className={`w-full text-1xl bg-zinc-50${
                     error.category ? "border-red-500 focus:ring-red-500" : ""
                   }`}
                 >
@@ -125,6 +143,14 @@ export default function EditJournal() {
                   <SelectItem value="personal">Personal</SelectItem>
                   <SelectItem value="study">Study</SelectItem>
                   <SelectItem value="travel">Travel</SelectItem>
+
+                  <SelectSeparator />
+                  <SelectItem
+                    value="__clear__"
+                    className="text-red-500 font-bold flex justify-center"
+                  >
+                    Clear
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </CardContent>
@@ -141,7 +167,7 @@ export default function EditJournal() {
                 <p className="text-red-500">Content is required</p>
               )}
             </CardContent>
-            <CardFooter className="mx-4 my-4">
+            <CardFooter className="mx-4 my-4 grid grid-cols-2 gap-4">
               <Button
                 type="button"
                 onClick={handleSubmit}
@@ -149,6 +175,9 @@ export default function EditJournal() {
                 className="w-full"
               >
                 {loading ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button onClick={() => navigate("/entries")}>
+                Cancel
               </Button>
             </CardFooter>
           </Card>

@@ -1,8 +1,11 @@
 import AppSidebar from "@/components/layouts/app-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { BookOpen, PenTool, Calendar } from "lucide-react"; // Assuming you have lucide-react for icons
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomePage() {
+  const { username } = useAuth();
+
   return (
     <SidebarProvider className="flex min-h-screen">
       <AppSidebar />
@@ -10,7 +13,7 @@ export default function HomePage() {
         <div className="flex-1 flex flex-col items-center justify-center min-h-screen  from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
           <div className="text-center mb-12">
             <h1 className="text-7xl font-extrabold text-gray-900 dark:text-white mb-4">
-              Hello, Welcome to Journal App.
+              Hello {username}, <br/> Welcome to Journal App.
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300">
               Capture your thoughts, track your journey, and reflect on your

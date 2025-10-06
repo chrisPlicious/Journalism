@@ -30,6 +30,16 @@ export default function SignupPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({
+    firstName: '',
+    lastName: '',
+    gender: '',
+    dateOfBirth: '',
+    email: '',
+    username: '',
+    password: '',
+    confirmPassword: ''
+  });
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -46,13 +56,22 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
 
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    // Field validation
+    const errors = {
+      firstName: formData.firstName.trim() ? '' : 'First name is required',
+      lastName: formData.lastName.trim() ? '' : 'Last name is required',
+      gender: formData.gender ? '' : 'Gender is required',
+      dateOfBirth: formData.dateOfBirth ? '' : 'Date of birth is required',
+      email: formData.email.trim() ? (formData.email.includes('@') ? '' : 'Invalid email') : 'Email is required',
+      username: formData.username.trim() ? (formData.username.length >= 3 ? '' : 'Username must be at least 3 characters') : 'Username is required',
+      password: formData.password.length >= 6 ? '' : 'Password must be at least 6 characters',
+      confirmPassword: formData.confirmPassword ? (formData.password === formData.confirmPassword ? '' : 'Passwords do not match') : 'Confirm password is required'
+    };
+
+    setFieldErrors(errors);
+
+    // Check if any errors exist
+    if (Object.values(errors).some(error => error !== '')) {
       return;
     }
 
@@ -75,7 +94,7 @@ export default function SignupPage() {
       const data = await response.json();
       if (response.ok) {
         // On success, navigate to login or auto-login if token is returned
-        login(data.token);
+        login(data.token, data.username, data.email);
         navigate('/home') // Or use login(data.token) if backend returns token on register
       } else {
         setError(data.message || 'Signup failed');
@@ -110,8 +129,10 @@ export default function SignupPage() {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
+                    className={fieldErrors.firstName ? 'border-red-500' : ''}
                     required
                   />
+                  {fieldErrors.firstName && <p className="text-red-500 text-sm">{fieldErrors.firstName}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="lastName">Last Name</Label>
@@ -120,15 +141,17 @@ export default function SignupPage() {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
+                    className={fieldErrors.lastName ? 'border-red-500' : ''}
                     required
                   />
+                  {fieldErrors.lastName && <p className="text-red-500 text-sm">{fieldErrors.lastName}</p>}
                 </div>
               </div>
               <div className='grid grid-cols-2 gap-4'>
                 <div className="grid gap-2">
                   <Label htmlFor="gender">Gender</Label>
                   <Select onValueChange={(value) => handleSelectChange('gender', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className={fieldErrors.gender ? 'border-red-500' : ''}>
                       <SelectValue placeholder="Select gender"/>
                     </SelectTrigger>
                     <SelectContent>
@@ -137,6 +160,7 @@ export default function SignupPage() {
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
+                  {fieldErrors.gender && <p className="text-red-500 text-sm">{fieldErrors.gender}</p>}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
@@ -146,8 +170,10 @@ export default function SignupPage() {
                     type="date"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
+                    className={fieldErrors.dateOfBirth ? 'border-red-500' : ''}
                     required
                   />
+                  {fieldErrors.dateOfBirth && <p className="text-red-500 text-sm">{fieldErrors.dateOfBirth}</p>}
                 </div>
               </div>
               <div className="grid gap-2">
@@ -158,8 +184,10 @@ export default function SignupPage() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
+                  className={fieldErrors.email ? 'border-red-500' : ''}
                   required
                 />
+                {fieldErrors.email && <p className="text-red-500 text-sm">{fieldErrors.email}</p>}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
@@ -168,8 +196,10 @@ export default function SignupPage() {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
+                  className={fieldErrors.username ? 'border-red-500' : ''}
                   required
                 />
+                {fieldErrors.username && <p className="text-red-500 text-sm">{fieldErrors.username}</p>}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
@@ -179,8 +209,10 @@ export default function SignupPage() {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
+                  className={fieldErrors.password ? 'border-red-500' : ''}
                   required
                 />
+                {fieldErrors.password && <p className="text-red-500 text-sm">{fieldErrors.password}</p>}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -190,8 +222,10 @@ export default function SignupPage() {
                   type="password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  className={fieldErrors.confirmPassword ? 'border-red-500' : ''}
                   required
                 />
+                {fieldErrors.confirmPassword && <p className="text-red-500 text-sm">{fieldErrors.confirmPassword}</p>}
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>

@@ -257,7 +257,7 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
               }
 
               if (node && !listenersRef.current) {
-                const beforeInput = (e: Event) => {
+                const beforeInput = (_e: Event) => {
                   try {
                     pushToHistory((node as HTMLDivElement).innerHTML);
                   } catch {}

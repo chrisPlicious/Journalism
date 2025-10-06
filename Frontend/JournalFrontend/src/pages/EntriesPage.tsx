@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { getJournals, deleteJournal, getJournalById } from "../services/api"; // Use your API
 import type { JournalEntryDto, JournalEntryDetailDto } from "../models/journal"; // Use your types
-import AppLayout from "../components/layouts/app-sidebar"; // Use AppLayout
+import AppSidebar from "../components/layouts/app-sidebar"; // Use AppSidebar
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -14,7 +14,7 @@ import {
 import JournalDialog from "../components/Viewer/EntryView"; // Use customized dialog
 import { Separator } from "@/components/ui/separator";
 import { toast, Toaster } from "sonner";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 export default function EntriesPage() {
   const [journals, setJournals] = useState<JournalEntryDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,17 +73,20 @@ export default function EntriesPage() {
 
   if (loading) {
     return (
-      <AppLayout>
-        <p className="text-center mt-10">Loading...</p>
-      </AppLayout>
+      <SidebarProvider className="flex min-h-screen">
+        <AppSidebar />
+        <SidebarInset>
+          <p className="text-center mt-10">Loading...</p>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 
   return (
     <SidebarProvider className="flex min-h-screen">
-      {/* <SidebarProvider className="flex min-h-screen"> */}
-      <AppLayout>
-        <div className="py-10 px-25 flex-1 items-center justify-center">
+      <AppSidebar />
+      <SidebarInset>
+        <div className="px-15 py-10 flex-1 items-center justify-center">
           <div className="flex-cols gap-5 items-center mb-6">
             <h1 className="text-6xl font-bold">All Journal Entries</h1>
             <Select
@@ -151,8 +154,7 @@ export default function EntriesPage() {
           />
         </div>
         <Toaster richColors position="top-center" />
-        {/* </SidebarProvider> */}
-      </AppLayout>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

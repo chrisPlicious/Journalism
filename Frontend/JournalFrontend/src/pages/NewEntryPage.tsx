@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import AppLayout from "@/components/layouts/app-sidebar"; // Use your AppLayout
-import { SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/layouts/app-sidebar"; // Use your AppSidebar
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import {
   Select,
   SelectContent,
@@ -69,9 +69,8 @@ export default function NewEntryPage() {
 
   return (
     <SidebarProvider>
-      <AppLayout>
-        {" "}
-        {/* Wrap with your AppLayout */}
+      <AppSidebar />
+      <SidebarInset>
         <Toaster richColors position="top-center" />
         <div className="flex flex-1 items-center justify-center min-h-screen">
           <Card className="w-7xl shadow-xl">
@@ -137,7 +136,7 @@ export default function NewEntryPage() {
             </CardFooter>
           </Card>
         </div>
-      </AppLayout>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

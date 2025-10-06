@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import AppLayout from "../components/layouts/app-sidebar"; // Use AppLayout
+import AppSidebar from "../components/layouts/app-sidebar"; // Use AppSidebar
 import {
   Select,
   SelectContent,
@@ -21,7 +21,7 @@ import { useParams } from "react-router-dom";
 import { updateJournal, getJournalById } from "../services/api"; // Use your API
 import ShadcnTextEditor from "@/components/TextEditor/TextEditor";
 import { toast, Toaster } from "sonner";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export default function EditJournal() {
   const [title, setTitle] = useState("");
@@ -85,9 +85,8 @@ export default function EditJournal() {
 
   return (
     <SidebarProvider>
-      <AppLayout>
-        {" "}
-        {/* Use AppLayout */}
+      <AppSidebar />
+      <SidebarInset>
         <Toaster richColors position="top-center" />
         <div className="flex flex-1 items-center justify-center min-h-screen">
           <Card className="w-7xl shadow-xl">
@@ -154,7 +153,7 @@ export default function EditJournal() {
             </CardFooter>
           </Card>
         </div>
-      </AppLayout>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

@@ -1,7 +1,7 @@
-// OOP: This class represents a JournalEntry entity.
+
 // OOP Pillars: Encapsulation (properties encapsulate data).
 // SOLID: Single Responsibility - Represents journal entry data.
-// LINQ: Not used here, but queries will use LINQ.
+
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

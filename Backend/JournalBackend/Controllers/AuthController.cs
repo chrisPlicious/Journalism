@@ -1,7 +1,5 @@
-// OOP: Controller class for auth endpoints.
 // OOP Pillars: Encapsulation (private methods), Abstraction (public actions hide logic).
 // SOLID: Single Responsibility - Handle auth HTTP requests.
-// LINQ: Not used directly, but services use LINQ.
 
 using JournalBackend.DTOs;
 using JournalBackend.Services;

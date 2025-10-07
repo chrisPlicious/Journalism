@@ -64,7 +64,7 @@ export default function SignupPage() {
       dateOfBirth: formData.dateOfBirth ? '' : 'Date of birth is required',
       email: formData.email.trim() ? (formData.email.includes('@') ? '' : 'Invalid email') : 'Email is required',
       username: formData.username.trim() ? (formData.username.length >= 3 ? '' : 'Username must be at least 3 characters') : 'Username is required',
-      password: formData.password.length >= 6 ? '' : 'Password must be at least 6 characters',
+      password: /^(?=.*\d)(?=.*[^a-zA-Z0-9])(.{8,})$/.test(formData.password) ? '' : 'Password must be at least 8 characters long and contain at least one number and one non-alphanumeric character',
       confirmPassword: formData.confirmPassword ? (formData.password === formData.confirmPassword ? '' : 'Passwords do not match') : 'Confirm password is required'
     };
 

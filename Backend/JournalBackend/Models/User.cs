@@ -1,7 +1,6 @@
 // OOP: This class represents a User entity, encapsulating user data and behavior.
 // OOP Pillars: Inheritance (from IdentityUser), Encapsulation (properties hide data).
 // SOLID: Single Responsibility - Handles user data only.
-// LINQ: Not used in this class, but will be used in queries involving User.
 
 using Microsoft.AspNetCore.Identity;
 

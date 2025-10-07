@@ -12,42 +12,46 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { cn } from "@/lib/utils"; // assuming you have a cn helper for conditional classes
+import { cn } from "@/lib/utils"; // utility for conditional classes
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     loginIdentifier: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [touched, setTouched] = useState({
-    loginIdentifier: false,
-    password: false,
+
+  const [errors, setErrors] = useState({
+    loginIdentifier: "",
+    password: "",
+    general: "",
   });
+
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const validateForm = () => {
     let valid = true;
+    const newErrors = { loginIdentifier: "", password: "", general: "" };
+
     if (!formData.loginIdentifier.trim()) {
+      newErrors.loginIdentifier = "Email or username is required";
       valid = false;
     }
     if (!formData.password.trim()) {
+      newErrors.password = "Password is required";
       valid = false;
     }
+
+    setErrors(newErrors);
     return valid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ loginIdentifier: true, password: true });
-    setError("");
+    setErrors({ loginIdentifier: "", password: "", general: "" });
 
-    if (!validateForm()) {
-      setError("Please fill in all required fields");
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
     try {
@@ -65,14 +69,22 @@ export default function LoginPage() {
         login(data.token, data.username, data.email);
         navigate("/home");
       } else if (response.status === 401) {
-        // Generic message for wrong credentials
-        setError("Username or password is incorrect");
+        // Wrong credentials
+        setErrors((prev) => ({
+          ...prev,
+          general: "Username or password is incorrect",
+        }));
       } else {
-        // Any other error
-        setError(data.message || "Login failed. Try again.");
+        setErrors((prev) => ({
+          ...prev,
+          general: data.message || "Login failed. Try again.",
+        }));
       }
     } catch (err) {
-      setError("Network error. Please try again later.");
+      setErrors((prev) => ({
+        ...prev,
+        general: "Network error. Please try again later.",
+      }));
     } finally {
       setLoading(false);
     }
@@ -90,6 +102,7 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
+              {/* Email / Username */}
               <div className="grid gap-2">
                 <Label htmlFor="loginIdentifier">Email or Username</Label>
                 <Input
@@ -101,18 +114,18 @@ export default function LoginPage() {
                       loginIdentifier: e.target.value,
                     })
                   }
-                  onBlur={() =>
-                    setTouched((prev) => ({ ...prev, loginIdentifier: true }))
-                  }
                   className={cn(
-                    touched.loginIdentifier && !formData.loginIdentifier.trim()
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
+                    errors.loginIdentifier ? "border-red-500 focus:ring-red-500" : ""
                   )}
                   required
                   disabled={loading}
                 />
+                {errors.loginIdentifier && (
+                  <p className="text-red-500 text-sm">{errors.loginIdentifier}</p>
+                )}
               </div>
+
+              {/* Password */}
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -122,19 +135,19 @@ export default function LoginPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  onBlur={() =>
-                    setTouched((prev) => ({ ...prev, password: true }))
-                  }
                   className={cn(
-                    touched.password && !formData.password.trim()
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
+                    errors.password ? "border-red-500 focus:ring-red-500" : ""
                   )}
                   required
                   disabled={loading}
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm">{errors.password}</p>
+                )}
               </div>
-              {error && <p className="text-red-500">{error}</p>}
+
+              {/* General error (wrong credentials, server issues, etc.) */}
+              {errors.general && <p className="text-red-500">{errors.general}</p>}
             </div>
           </form>
         </CardContent>

@@ -1,4 +1,4 @@
-// OOP: Service class for journal operations.
+
 // OOP Pillars: Encapsulation (private data), Abstraction (public methods hide implementation).
 // SOLID: Single Responsibility - Handle journal CRUD.
 // LINQ: Used extensively in queries (Where, Select, FirstOrDefaultAsync).

@@ -1,7 +1,7 @@
-// OOP: Controller class for journal endpoints.
+
 // OOP Pillars: Encapsulation (private methods), Abstraction (public actions hide logic).
 // SOLID: Single Responsibility - Handle journal HTTP requests.
-// LINQ: Not used directly, but services use LINQ.
+
 
 using System.Security.Claims;
 using JournalBackend.DTOs;

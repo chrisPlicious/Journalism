@@ -1,11 +1,11 @@
-// OOP: Service class for authentication logic.
 // OOP Pillars: Encapsulation (private methods and data), Abstraction (public methods hide complexity).
 // SOLID: Single Responsibility - Handle auth operations.
-// LINQ: Used in queries for finding users.
+
 
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using BCrypt.Net;
 using JournalBackend.Data;
 using JournalBackend.DTOs;
@@ -26,6 +26,13 @@ public class AuthService
         _configuration = configuration;
     }
 
+    private bool IsValidPassword(string password)
+    {
+        // At least 8 characters, at least 1 number, at least 1 non-alphanumeric
+        var regex = new Regex(@"^(?=.*\d)(?=.*[^a-zA-Z0-9])(.{8,})$");
+        return regex.IsMatch(password);
+    }
+
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
     {
         // Check if user exists
@@ -34,6 +41,12 @@ public class AuthService
         if (existingUser != null)
         {
             return new AuthResponseDto { Message = "User already exists." };
+        }
+
+        // Validate password strength
+        if (!IsValidPassword(registerDto.Password))
+        {
+            return new AuthResponseDto { Message = "Password must be at least 8 characters long and contain at least one number and one non-alphanumeric character." };
         }
 
         var user = new User
@@ -51,7 +64,7 @@ public class AuthService
         await _context.SaveChangesAsync();
 
         var token = GenerateJwtToken(user);
-        return new AuthResponseDto { Token = token, Message = "Registration successful." };
+        return new AuthResponseDto { Token = token, Message = "Registration successful.", Username = user.UserName!, Email = user.Email! };
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
@@ -65,7 +78,7 @@ public class AuthService
         }
 
         var token = GenerateJwtToken(user);
-        return new AuthResponseDto { Token = token, Message = "Login successful." };
+        return new AuthResponseDto { Token = token, Message = "Login successful.", Username = user.UserName!, Email = user.Email! };
     }
 
     private string GenerateJwtToken(User user)

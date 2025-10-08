@@ -1,7 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+
 @custom-variant dark (&:is(.dark *));
+
+::selection {
+  background: black;   /* background of selected text */
+  color: white;        /* text color when selected */
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

@@ -102,4 +102,44 @@ public class AuthService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    public async Task<User?> GetCurrentUserAsync(string userId)
+    {
+        return await _context.Users.FindAsync(userId);
+    }
+
+    public async Task<UserProfileDto?> GetProfileAsync(string userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
+
+        return new UserProfileDto
+        {
+            Id = user.Id,
+            UserName = user.UserName!,
+            Email = user.Email!,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Gender = user.Gender,
+            DateOfBirth = user.DateOfBirth,
+            ProfilePictureUrl = user.ProfilePictureUrl
+        };
+    }
+
+    public async Task<bool> UpdateProfileAsync(string userId, UserProfileDto profileDto)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return false;
+
+        user.UserName = profileDto.UserName;
+        user.Email = profileDto.Email;
+        user.FirstName = profileDto.FirstName;
+        user.LastName = profileDto.LastName;
+        user.Gender = profileDto.Gender;
+        user.DateOfBirth = profileDto.DateOfBirth;
+        user.ProfilePictureUrl = profileDto.ProfilePictureUrl;
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

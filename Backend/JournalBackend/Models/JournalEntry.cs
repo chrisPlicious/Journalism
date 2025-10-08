@@ -5,15 +5,18 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace JournalBackend.Models;
 
+[Index(nameof(UserId), nameof(Title), IsUnique = true)]
 public class JournalEntry
 {
+
     [Key]
     public int Id { get; set; }
 
-    [Required]
+    [Required, MaxLength(255)]
     public string Title { get; set; } = string.Empty;
 
     [Required]

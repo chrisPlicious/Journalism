@@ -8,7 +8,7 @@ export default function LandingPage() {
   bg-[radial-gradient(ellipse_at_top,_#374151,_#0f172a,_#000000)]"
     >
       <h1 className="scroll-m-20 text-center text-7xl font-extrabold tracking-tight text-balance">
-        Welcome to Journal App
+        Welcome to MindNest
       </h1>
       <Link to="/login">
         <Button className="text-2xl font-bold h-full px-8">

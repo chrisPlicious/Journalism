@@ -54,6 +54,15 @@ public class JournalService
 
     public async Task<JournalEntryDetailDto> CreateEntryAsync(JournalEntryCreateDto dto, string userId)
     {
+        // Check if title already exists for this user
+        var existingEntry = await _context.JournalEntries
+            .FirstOrDefaultAsync(e => e.UserId == userId && e.Title == dto.Title);
+
+        if (existingEntry != null)
+        {
+            throw new InvalidOperationException("A journal entry with this title already exists.");
+        }
+
         var entry = new JournalEntry
         {
             Title = dto.Title,

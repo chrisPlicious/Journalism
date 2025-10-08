@@ -92,8 +92,15 @@ export default function LoginPage() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <Card className="w-full max-w-sm scale-120">
+      <Card className="w-full max-w-sm scale-150">
         <CardHeader>
+          <div className="flex justify-center mb-2">
+            <img
+              src="/MindNestLogoDark.png"
+              alt="MindNest Logo"
+              className="h-20 w-auto"
+            />
+          </div>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
             Enter your email or username and password to login
@@ -115,13 +122,17 @@ export default function LoginPage() {
                     })
                   }
                   className={cn(
-                    errors.loginIdentifier ? "border-red-500 focus:ring-red-500" : ""
+                    errors.loginIdentifier
+                      ? "border-red-500 focus:ring-red-500"
+                      : ""
                   )}
                   required
                   disabled={loading}
                 />
                 {errors.loginIdentifier && (
-                  <p className="text-red-500 text-sm">{errors.loginIdentifier}</p>
+                  <p className="text-red-500 text-sm">
+                    {errors.loginIdentifier}
+                  </p>
                 )}
               </div>
 
@@ -147,7 +158,9 @@ export default function LoginPage() {
               </div>
 
               {/* General error (wrong credentials, server issues, etc.) */}
-              {errors.general && <p className="text-red-500">{errors.general}</p>}
+              {errors.general && (
+                <p className="text-red-500">{errors.general}</p>
+              )}
             </div>
           </form>
         </CardContent>

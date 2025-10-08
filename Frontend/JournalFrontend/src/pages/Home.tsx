@@ -12,8 +12,15 @@ export default function HomePage() {
       <SidebarInset>
         <div className="flex-1 flex flex-col items-center justify-center min-h-screen  from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
           <div className="text-center mb-12">
+            <div className="flex justify-center">
+              <img
+                src="/MindNestLogoDark.png"
+                alt="MindNest Logo"
+                className="h-50 w-auto"
+              />
+            </div>
             <h1 className="text-7xl font-extrabold text-gray-900 dark:text-white mb-4">
-              Hello {username}, <br/> Welcome to Journal App.
+              Hello {username}, <br /> Welcome to MindNest.
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300">
               Capture your thoughts, track your journey, and reflect on your

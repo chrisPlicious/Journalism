@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../context/AuthContext";
 import {
   Card,
   // CardAction,
@@ -14,35 +14,39 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Assuming shadcn/ui Select is available
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Assuming shadcn/ui Select is available
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    gender: '',
-    dateOfBirth: '',
-    email: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    gender: "",
+    dateOfBirth: "",
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({
-    firstName: '',
-    lastName: '',
-    gender: '',
-    dateOfBirth: '',
-    email: '',
-    username: '',
-    password: '',
-    confirmPassword: ''
+    firstName: "",
+    lastName: "",
+    gender: "",
+    dateOfBirth: "",
+    email: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
   });
   const navigate = useNavigate();
   const { login } = useAuth();
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,35 +55,50 @@ export default function SignupPage() {
   const handleSelectChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     // Field validation
     const errors = {
-      firstName: formData.firstName.trim() ? '' : 'First name is required',
-      lastName: formData.lastName.trim() ? '' : 'Last name is required',
-      gender: formData.gender ? '' : 'Gender is required',
-      dateOfBirth: formData.dateOfBirth ? '' : 'Date of birth is required',
-      email: formData.email.trim() ? (formData.email.includes('@') ? '' : 'Invalid email') : 'Email is required',
-      username: formData.username.trim() ? (formData.username.length >= 3 ? '' : 'Username must be at least 3 characters') : 'Username is required',
-      password: /^(?=.*\d)(?=.*[^a-zA-Z0-9])(.{8,})$/.test(formData.password) ? '' : 'Password must be at least 8 characters long and contain at least one number and one non-alphanumeric character',
-      confirmPassword: formData.confirmPassword ? (formData.password === formData.confirmPassword ? '' : 'Passwords do not match') : 'Confirm password is required'
+      firstName: formData.firstName.trim() ? "" : "First name is required",
+      lastName: formData.lastName.trim() ? "" : "Last name is required",
+      gender: formData.gender ? "" : "Gender is required",
+      dateOfBirth: formData.dateOfBirth ? "" : "Date of birth is required",
+      email: formData.email.trim()
+        ? formData.email.includes("@")
+          ? ""
+          : "Invalid email"
+        : "Email is required",
+      username: formData.username.trim()
+        ? formData.username.length >= 3
+          ? ""
+          : "Username must be at least 3 characters"
+        : "Username is required",
+      password: /^(?=.*\d)(?=.*[^a-zA-Z0-9])(.{8,})$/.test(formData.password)
+        ? ""
+        : "Password must be at least 8 characters long and contain at least one number and one non-alphanumeric character",
+      confirmPassword: formData.confirmPassword
+        ? formData.password === formData.confirmPassword
+          ? ""
+          : "Passwords do not match"
+        : "Confirm password is required",
     };
 
     setFieldErrors(errors);
 
     // Check if any errors exist
-    if (Object.values(errors).some(error => error !== '')) {
+    if (Object.values(errors).some((error) => error !== "")) {
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/auth/register', { // Adjust backend URL
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:8080/api/auth/register", {
+        // Adjust backend URL
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           FirstName: formData.firstName,
           LastName: formData.lastName,
@@ -95,12 +114,12 @@ export default function SignupPage() {
       if (response.ok) {
         // On success, navigate to login or auto-login if token is returned
         login(data.token, data.username, data.email);
-        navigate('/home') // Or use login(data.token) if backend returns token on register
+        navigate("/home"); // Or use login(data.token) if backend returns token on register
       } else {
-        setError(data.message || 'Signup failed');
+        setError(data.message || "Signup failed");
       }
     } catch (err) {
-      setError('Network error');
+      setError("Network error");
     } finally {
       setLoading(false);
     }
@@ -108,12 +127,19 @@ export default function SignupPage() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <Card className="w-full max-w-md"> {/* Increased width for more fields */}
+      <Card className="w-full max-w-md scale-125">
+        {" "}
+        {/* Increased width for more fields */}
+        <div className="flex justify-center mb-2">
+          <img
+            src="/MindNestLogoDark.png"
+            alt="MindNest Logo"
+            className="h-20 w-auto"
+          />
+        </div>
         <CardHeader>
           <CardTitle>Sign up now</CardTitle>
-          <CardDescription>
-            Create your account to get started
-          </CardDescription>
+          <CardDescription>Create your account to get started</CardDescription>
           {/* <CardAction>
             
           </CardAction> */}
@@ -129,10 +155,14 @@ export default function SignupPage() {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
-                    className={fieldErrors.firstName ? 'border-red-500' : ''}
+                    className={fieldErrors.firstName ? "border-red-500" : ""}
                     required
                   />
-                  {fieldErrors.firstName && <p className="text-red-500 text-sm">{fieldErrors.firstName}</p>}
+                  {fieldErrors.firstName && (
+                    <p className="text-red-500 text-sm">
+                      {fieldErrors.firstName}
+                    </p>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="lastName">Last Name</Label>
@@ -141,18 +171,28 @@ export default function SignupPage() {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
-                    className={fieldErrors.lastName ? 'border-red-500' : ''}
+                    className={fieldErrors.lastName ? "border-red-500" : ""}
                     required
                   />
-                  {fieldErrors.lastName && <p className="text-red-500 text-sm">{fieldErrors.lastName}</p>}
+                  {fieldErrors.lastName && (
+                    <p className="text-red-500 text-sm">
+                      {fieldErrors.lastName}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div className='grid grid-cols-2 gap-4'>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="gender">Gender</Label>
-                  <Select onValueChange={(value) => handleSelectChange('gender', value)}>
-                    <SelectTrigger className={fieldErrors.gender ? 'border-red-500' : ''}>
-                      <SelectValue placeholder="Select gender"/>
+                  <Select
+                    onValueChange={(value) =>
+                      handleSelectChange("gender", value)
+                    }
+                  >
+                    <SelectTrigger
+                      className={fieldErrors.gender ? "border-red-500" : ""}
+                    >
+                      <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Male">Male</SelectItem>
@@ -160,7 +200,9 @@ export default function SignupPage() {
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-                  {fieldErrors.gender && <p className="text-red-500 text-sm">{fieldErrors.gender}</p>}
+                  {fieldErrors.gender && (
+                    <p className="text-red-500 text-sm">{fieldErrors.gender}</p>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="dateOfBirth">Date of Birth</Label>
@@ -170,10 +212,14 @@ export default function SignupPage() {
                     type="date"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
-                    className={fieldErrors.dateOfBirth ? 'border-red-500' : ''}
+                    className={fieldErrors.dateOfBirth ? "border-red-500" : ""}
                     required
                   />
-                  {fieldErrors.dateOfBirth && <p className="text-red-500 text-sm">{fieldErrors.dateOfBirth}</p>}
+                  {fieldErrors.dateOfBirth && (
+                    <p className="text-red-500 text-sm">
+                      {fieldErrors.dateOfBirth}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="grid gap-2">
@@ -184,10 +230,12 @@ export default function SignupPage() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={fieldErrors.email ? 'border-red-500' : ''}
+                  className={fieldErrors.email ? "border-red-500" : ""}
                   required
                 />
-                {fieldErrors.email && <p className="text-red-500 text-sm">{fieldErrors.email}</p>}
+                {fieldErrors.email && (
+                  <p className="text-red-500 text-sm">{fieldErrors.email}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
@@ -196,10 +244,12 @@ export default function SignupPage() {
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  className={fieldErrors.username ? 'border-red-500' : ''}
+                  className={fieldErrors.username ? "border-red-500" : ""}
                   required
                 />
-                {fieldErrors.username && <p className="text-red-500 text-sm">{fieldErrors.username}</p>}
+                {fieldErrors.username && (
+                  <p className="text-red-500 text-sm">{fieldErrors.username}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
@@ -209,10 +259,12 @@ export default function SignupPage() {
                   type="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={fieldErrors.password ? 'border-red-500' : ''}
+                  className={fieldErrors.password ? "border-red-500" : ""}
                   required
                 />
-                {fieldErrors.password && <p className="text-red-500 text-sm">{fieldErrors.password}</p>}
+                {fieldErrors.password && (
+                  <p className="text-red-500 text-sm">{fieldErrors.password}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -222,24 +274,36 @@ export default function SignupPage() {
                   type="password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={fieldErrors.confirmPassword ? 'border-red-500' : ''}
+                  className={
+                    fieldErrors.confirmPassword ? "border-red-500" : ""
+                  }
                   required
                 />
-                {fieldErrors.confirmPassword && <p className="text-red-500 text-sm">{fieldErrors.confirmPassword}</p>}
+                {fieldErrors.confirmPassword && (
+                  <p className="text-red-500 text-sm">
+                    {fieldErrors.confirmPassword}
+                  </p>
+                )}
               </div>
               {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button type="submit" onClick={handleSubmit} className="w-full" disabled={loading}>
-            {loading ? 'Signing up...' : 'Sign Up'}
+          <Button
+            type="submit"
+            onClick={handleSubmit}
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? "Signing up..." : "Sign Up"}
           </Button>
-          <Button variant="link" onClick={() => navigate('/login')}>Already have an account? Login</Button>
+          <Button variant="link" onClick={() => navigate("/login")}>
+            Already have an account? Login
+          </Button>
           {/* Optional: Add Google signup button if supported */}
         </CardFooter>
       </Card>
     </div>
   );
 }
-

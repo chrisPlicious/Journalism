@@ -51,8 +51,15 @@ public class JournalController : ControllerBase
             return BadRequest(ModelState);
 
         var userId = GetUserId();
-        var entry = await _journalService.CreateEntryAsync(dto, userId);
-        return CreatedAtAction(nameof(GetEntryById), new { id = entry.Id }, entry);
+        try
+        {
+            var entry = await _journalService.CreateEntryAsync(dto, userId);
+            return CreatedAtAction(nameof(GetEntryById), new { id = entry.Id }, entry);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id}")]

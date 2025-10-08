@@ -72,9 +72,13 @@ export default function NewEntryPage() {
       setCategory("");
       setContent("");
       setErrors({ title: false, category: false, content: false });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to create journal");
+      if (err.response?.status === 400 && err.response.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Failed to create journal");
+      }
     } finally {
       setLoading(false);
     }

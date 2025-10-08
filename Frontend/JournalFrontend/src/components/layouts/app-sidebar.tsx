@@ -38,38 +38,44 @@ export default function AppSidebar() {
   ];
 
   return (
-    <Sidebar className="border-r dark:border-slate-800 border-black " >
+    <Sidebar className="border-r dark:border-slate-800 border-black">
       <SidebarContent className="bg-zinc-800">
         <SidebarGroup className="mb-6">
           <SidebarGroupLabel>
-            <div className="flex items-center gap-3 px-3 mt-9">
-              <div className="rounded-full bg-white p-2 text-black font-bold text-2xl">
-                J
+            <div className="flex justify-center items-center gap-4 mt-15">
+              <div className="flex items-center justify-center ">
+                <img
+                  src="/MindNestLogoLight.png"
+                  alt="MindNest Logo"
+                  className="h-20 w-auto"
+                />
               </div>
-              <div>
-                <h1 className="text-4xl font-extrabold text-white">Journal</h1>
-                <p className="text-1xl text-white">My entries & notes</p>
+              <div className="flex flex-col ">
+                <h1 className="text-[36px] font-extrabold text-white">
+                  MindNest
+                </h1>
+                {/* <p className="text-1xl text-white">My entries & notes</p> */}
               </div>
             </div>
           </SidebarGroupLabel>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="py-7">
               {items.map((item) => (
-                <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton asChild>
+                <SidebarMenuItem key={item.to} className="">
+                  <SidebarMenuButton size="xl" asChild>
                     <NavLink
                       to={item.to}
                       end={item.to === "/"}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-2 py-2 rounded-lg text-sm transition-colors duration-150 hover:bg-gray-200 ` +
+                        `flex items-center gap-3 px-3 py-3 rounded-lg text-lg font-semibold transition-colors duration-150 hover:bg-gray-200 ` +
                         (isActive
                           ? "bg-black text-white font-lg"
                           : "bg-white text-black")
                       }
                     >
-                      <item.icon className="h-10 w-10" />
+                      <item.icon className="h-12 w-12" />
                       <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
@@ -85,12 +91,14 @@ export default function AppSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
-                  size="lg"
+                  size="xl"
                   className="bg-black text-white hover:bg-black hover:text-white"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src="/placeholder.svg" alt={username || ""} />
-                    <AvatarFallback className="rounded-lg text-black ">{username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                    <AvatarFallback className="rounded-lg text-black ">
+                      {username?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{username}</span>
@@ -108,8 +116,13 @@ export default function AppSidebar() {
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src="/placeholder.svg" alt={username || ""} />
-                      <AvatarFallback className="rounded-lg">{username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+                      <AvatarImage
+                        src="/placeholder.svg"
+                        alt={username || ""}
+                      />
+                      <AvatarFallback className="rounded-lg">
+                        {username?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{username}</span>

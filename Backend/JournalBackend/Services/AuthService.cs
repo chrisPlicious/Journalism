@@ -97,9 +97,35 @@ public class AuthService
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddDays(7),
+            expires: DateTime.Now.AddDays(30),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    internal async Task LogoutAsync()
+    {
+        // JWT logout is handled client-side by discarding the token
+        await Task.CompletedTask;
+    }
+
+    public async Task<User?> GetUserByIdAsync(string id)
+    {
+        return await _context.Users.FindAsync(id);
+    }
+
+    public async Task<User?> UpdateUserProfileAsync(string userId, UserProfileUpdateDto updateDto)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return null;
+
+        user.FirstName = updateDto.FirstName;
+        user.LastName = updateDto.LastName;
+        user.Gender = updateDto.Gender;
+        user.DateOfBirth = updateDto.DateOfBirth;
+        user.AvatarUrl = updateDto.AvatarUrl;
+
+        await _context.SaveChangesAsync();
+        return user;
     }
 }

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Home, List, Plus, LogOut, ChevronsUpDown } from "lucide-react";
+import { Home, List, Plus, LogOut, ChevronsUpDown, UserCircle } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,7 +24,7 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function AppSidebar() {
   const navigate = useNavigate();
-  const { logout, username, email } = useAuth();
+  const { logout, username, email, avatarUrl } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -95,9 +95,16 @@ export default function AppSidebar() {
                   className="bg-black text-white hover:bg-black hover:text-white"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="/placeholder.svg" alt={username || ""} />
-                    <AvatarFallback className="rounded-lg text-black ">
-                      {username?.charAt(0).toUpperCase() || "U"}
+                    <AvatarImage
+                      src={avatarUrl || "/MindNestLogoDark.png"}
+                      alt={username || "User Avatar"}
+                    />
+                    <AvatarFallback className="rounded-lg">
+                      <img
+                        src="/MindNestLogoDark.png" // 👈 same logo (optional redundancy)
+                        alt="Default Logo"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -117,11 +124,15 @@ export default function AppSidebar() {
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
-                        src="/placeholder.svg"
-                        alt={username || ""}
+                        src={avatarUrl || "/MindNestLogoDark.png"}
+                        alt={username || "User Avatar"}
                       />
                       <AvatarFallback className="rounded-lg">
-                        {username?.charAt(0).toUpperCase() || "U"}
+                        <img
+                          src="/MindNestLogoDark.png" // 👈 same logo (optional redundancy)
+                          alt="Default Logo"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
                       </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
@@ -131,6 +142,12 @@ export default function AppSidebar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => navigate("/profile")}
+                >
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out

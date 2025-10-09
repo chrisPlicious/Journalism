@@ -121,6 +121,7 @@ public class AuthService
 
         user.FirstName = updateDto.FirstName;
         user.LastName = updateDto.LastName;
+        user.UserName = updateDto.UserName;
         user.Gender = updateDto.Gender;
         user.DateOfBirth = updateDto.DateOfBirth;
         user.AvatarUrl = updateDto.AvatarUrl;

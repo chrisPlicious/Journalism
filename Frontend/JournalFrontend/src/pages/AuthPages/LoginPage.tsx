@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { cn } from "@/lib/utils"; // utility for conditional classes
+// import { getProfile } from "../../services/api";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({

@@ -45,13 +45,13 @@ export default function JournalDialog({
       {/* if trigger was provided, use it as the DialogTrigger */}
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-      <DialogContent className="sm:max-w-5xl w-full max-h-[80vh] overflow-y-auto bg-white text-black px-15 py-10">
+      <DialogContent className="sm:max-w-5xl w-full max-h-[80vh] overflow-y-auto bg-white text-black dark:bg-zinc-800 dark:text-accent-foreground px-15 py-10">
         <DialogHeader>
           <DialogTitle className="flex justify-between text-3xl font-bold ">
             {entry.title}
             <Link to={`/editjournal/${entry.id}`}>
               {/* Match your route */}
-              <Button className="bg-zinc-800 text-white hover:bg-black text-lg">
+              <Button className="bg-zinc-800 text-white hover:bg-black dark:bg-white dark:text-black text-lg">
                 Edit
               </Button>
             </Link>
@@ -62,7 +62,7 @@ export default function JournalDialog({
           </DialogDescription>
         </DialogHeader>
         {/* metadata moved outside DialogDescription to avoid invalid nesting */}
-        <div className="flex justify-between text-lg mt-1">
+        <div className="flex justify-between text-lg mt-1 ">
           <span>Category: {entry.category ?? "—"}</span>
           <span>
             Created: {createdAt ? createdAt.toLocaleDateString() : "N/A"}
@@ -74,7 +74,7 @@ export default function JournalDialog({
 
         <Separator className="my-4" />
 
-        <div className="prose max-w-none text-black text-xl">
+        <div className="prose max-w-none dark:text-white text-xl">
           {entry.content ? (
             <p dangerouslySetInnerHTML={{ __html: entry.content || "" }} />
           ) : (

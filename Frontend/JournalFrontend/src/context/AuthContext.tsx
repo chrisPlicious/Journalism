@@ -1,3 +1,4 @@
+import { getProfile } from "@/services/api";
 import React, {
   createContext,
   useContext,
@@ -10,9 +11,17 @@ interface AuthContextType {
   token: string | null;
   username: string | null;
   email: string | null;
-  login: (token: string, username: string, email: string) => void;
+  avatarUrl: string | null;
+  login: (
+    token: string,
+    username: string,
+    email: string,
+    avatarUrl?: string
+  ) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  updateAvatar: (avatarUrl: string) => void;
+  updateUsername: (username: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,14 +38,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [email, setEmail] = useState<string | null>(
     localStorage.getItem("email")
   );
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    localStorage.getItem("avatarUrl")
+  );
 
-  const login = (newToken: string, newUsername: string, newEmail: string) => {
+  const login = (
+    newToken: string,
+    newUsername: string,
+    newEmail: string,
+    newAvatarUrl?: string
+  ) => {
     setToken(newToken);
     setUsername(newUsername);
     setEmail(newEmail);
+    setAvatarUrl(newAvatarUrl || null);
     localStorage.setItem("token", newToken);
     localStorage.setItem("username", newUsername);
     localStorage.setItem("email", newEmail);
+    if (newAvatarUrl) localStorage.setItem("avatarUrl", newAvatarUrl);
   };
 
   const logout = () => {
@@ -46,16 +65,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     localStorage.removeItem("email");
+    localStorage.removeItem("avatarUrl");
+  };
+
+  const updateAvatar = (newAvatarUrl: string) => {
+    setAvatarUrl(newAvatarUrl);
+    localStorage.setItem("avatarUrl", newAvatarUrl);
+  };
+
+  const updateUsername = (newUsername: string) => {
+    setUsername(newUsername);
+    localStorage.setItem("username", newUsername);
   };
 
   const isAuthenticated = !!token;
 
   useEffect(() => {
-    // Optional: Validate token on app load by calling a backend endpoint
-  }, []);
+    if (token) {
+      getProfile()
+        .then((profile) => {
+          setAvatarUrl(profile.avatarUrl);
+          localStorage.setItem("avatarUrl", profile.avatarUrl || "");
+        })
+        .catch((err) => console.error("Failed to fetch profile:", err));
+    }
+  }, [token]);
 
   return (
-    <AuthContext.Provider value={{ token, username, email, login, logout, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        username,
+        email,
+        avatarUrl,
+        login,
+        logout,
+        isAuthenticated,
+        updateAvatar,
+        updateUsername,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

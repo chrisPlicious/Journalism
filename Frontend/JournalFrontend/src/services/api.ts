@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { type JournalEntryCreateDto } from '../models/journal';
+import axios from "axios";
+import { type JournalEntryCreateDto } from "../models/journal";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'; // Default to backend URL
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api"; // Default to backend URL
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -33,7 +33,10 @@ export const getJournalById = async (id: number) => {
 };
 
 // Update
-export const updateJournal = async (id: number, data: JournalEntryCreateDto) => {
+export const updateJournal = async (
+  id: number,
+  data: JournalEntryCreateDto
+) => {
   const res = await axios.put(`${API_URL}/journal/${id}`, data, {
     headers: getAuthHeaders(),
   });
@@ -44,6 +47,40 @@ export const updateJournal = async (id: number, data: JournalEntryCreateDto) => 
 export const deleteJournal = async (id: number) => {
   const res = await axios.delete(`${API_URL}/journal/${id}`, {
     headers: getAuthHeaders(),
+  });
+  return res.data;
+};
+
+// Get user profile
+export const getProfile = async () => {
+  const res = await axios.get(`${API_URL}/auth/profile`, {
+    headers: getAuthHeaders(),
+  });
+  return res.data;
+};
+
+// Update user profile
+export const updateProfile = async (data: any) => {
+  const res = await axios.put(`${API_URL}/auth/profile`, data, {
+    headers: getAuthHeaders(),
+  });
+  return res.data;
+};
+
+// Search
+export const searchJournals = async (query: string) => {
+  const res = await axios.get(`${API_URL}/journal/search`, {
+    headers: getAuthHeaders(),
+    params: { query },
+  });
+  return res.data;
+};
+
+// Search by title
+export const searchJournalsByTitle = async (query: string) => {
+  const res = await axios.get(`${API_URL}/journal/search/title`, {
+    headers: getAuthHeaders(),
+    params: { q: query },
   });
   return res.data;
 };

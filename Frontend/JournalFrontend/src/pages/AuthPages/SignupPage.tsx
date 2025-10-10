@@ -114,7 +114,7 @@ export default function SignupPage() {
       if (response.ok) {
         // On success, navigate to login or auto-login if token is returned
         login(data.token, data.username, data.email);
-        navigate("/home"); // Or use login(data.token) if backend returns token on register
+        navigate("/avatar"); // Or use login(data.token) if backend returns token on register
       } else {
         setError(data.message || "Signup failed");
       }

@@ -156,7 +156,7 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
     }, []);
 
     return (
-      <Card className={cn("w-full bg-zinc-50", className)}>
+      <Card className={cn("w-full bg-zinc-50 dark:bg-zinc-700", className)}>
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
             <ToggleGroup

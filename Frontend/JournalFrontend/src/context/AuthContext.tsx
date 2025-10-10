@@ -21,6 +21,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   updateAvatar: (avatarUrl: string) => void;
+  updateUsername: (username: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,6 +73,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     localStorage.setItem("avatarUrl", newAvatarUrl);
   };
 
+  const updateUsername = (newUsername: string) => {
+    setUsername(newUsername);
+    localStorage.setItem("username", newUsername);
+  };
+
   const isAuthenticated = !!token;
 
   useEffect(() => {
@@ -96,6 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         logout,
         isAuthenticated,
         updateAvatar,
+        updateUsername,
       }}
     >
       {children}

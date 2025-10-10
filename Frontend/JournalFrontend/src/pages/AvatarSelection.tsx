@@ -2,14 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+//
 import { getProfile, updateProfile } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -54,41 +48,38 @@ export default function SelectAvatar() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-6">
+    <div className="flex flex-col items-center justify-center min-h-screen gap-2">
       <h2 className="text-3xl font-semibold text-white mb-4">
         Choose your avatar
       </h2>
-
-      <Carousel className="w-7xl max-w-lg">
-        <CarouselContent className="-ml-1">
-          {avatars.map((src, i) => (
-            <CarouselItem
-              key={i}
-              className="pl-1 basis-full flex justify-center"
-              onClick={() => setSelected((prev) => (prev === src ? null : src))}
-            >
-              <Card
-                className={`p-2  transition-all duration-300 cursor-pointer ${
-                  selected === src
-                    ? "border-blue-500 scale-105"
-                    : "border-transparent scale-100"
-                }`}
+      <Card className="w-96 bg-white/10 backdrop-blur-sm shadow-lg">
+        <CardHeader>
+          <CardTitle>Avatars</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-5">
+            {avatars.map((avatar) => (
+              <div
+                key={avatar}
+                onClick={() =>
+                  setSelected((prev) => (prev === avatar ? null : avatar))
+                }
+                className={`${
+                  selected === avatar
+                    ? "border-white transition-all duration-300 scale-110 shadow-lg"
+                    : ""
+                } border-transparent  transition-all duration-300`}
               >
-                <CardContent className="flex aspect-square items-center justify-center p-6">
-                  <img
-                    src={src}
-                    alt={`Avatar ${i + 1}`}
-                    className="w-70 h-70 rounded-full object-cover"
-                  />
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
-
+                <img
+                  src={avatar}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
       <Button
         onClick={handleSave}
         className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 transition-all"

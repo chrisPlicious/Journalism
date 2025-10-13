@@ -1,3 +1,5 @@
+import GoogleSignInButton from "@/components/Auth/GoogleSignInButton";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -67,7 +69,7 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        login(data.token, data.username, data.email);
+        login(data.token, data.username, data.email, data.avatarUrl, data.isProfileComplete);
         navigate("/home");
       } else if (response.status === 401) {
         // Wrong credentials
@@ -174,6 +176,17 @@ export default function LoginPage() {
           >
             {loading ? "Logging in..." : "Login"}
           </Button>
+
+          <div className="w-full flex items-center mt-2">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="px-2 text-xs text-gray-500">or</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          <div className="w-full flex justify-center mt-2">
+            <GoogleSignInButton />
+          </div>
+
           <Button variant="link">
             <Link to="/signup">No account? Sign up</Link>
           </Button>

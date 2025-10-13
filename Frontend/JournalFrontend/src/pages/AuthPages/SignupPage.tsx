@@ -1,3 +1,5 @@
+import GoogleSignInButton from "@/components/Auth/GoogleSignInButton";
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -113,7 +115,7 @@ export default function SignupPage() {
       const data = await response.json();
       if (response.ok) {
         // On success, navigate to login or auto-login if token is returned
-        login(data.token, data.username, data.email);
+        login(data.token, data.username, data.email, data.avatarUrl, data.isProfileComplete);
         navigate("/avatar"); // Or use login(data.token) if backend returns token on register
       } else {
         setError(data.message || "Signup failed");
@@ -298,10 +300,20 @@ export default function SignupPage() {
           >
             {loading ? "Signing up..." : "Sign Up"}
           </Button>
+
+          <div className="w-full flex items-center mt-2">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="px-2 text-xs text-gray-500">or</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          <div className="w-full flex justify-center mt-2">
+            <GoogleSignInButton text="signup_with" />
+          </div>
+
           <Button variant="link" onClick={() => navigate("/login")}>
             Already have an account? Login
           </Button>
-          {/* Optional: Add Google signup button if supported */}
         </CardFooter>
       </Card>
     </div>

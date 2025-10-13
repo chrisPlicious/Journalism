@@ -159,4 +159,18 @@ public class AuthController : ControllerBase
 
             return Ok(dto);
         }
+
+        [AllowAnonymous]
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.IdToken))
+                return BadRequest("Missing Google ID token.");
+
+            var result = await _authService.GoogleSignInAsync(dto.IdToken);
+            if (string.IsNullOrEmpty(result.Token))
+                return Unauthorized(result.Message);
+
+            return Ok(result);
+        }
 }

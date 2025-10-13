@@ -12,6 +12,7 @@ using JournalBackend.DTOs;
 using JournalBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Google.Apis.Auth;
 
 namespace JournalBackend.Services;
 
@@ -57,14 +58,15 @@ public class AuthService
             DateOfBirth = registerDto.DateOfBirth,
             Email = registerDto.Email,
             UserName = registerDto.Username,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+            IsProfileComplete = true  // Regular registration has complete profile
         };
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
         var token = GenerateJwtToken(user);
-        return new AuthResponseDto { Token = token, Message = "Registration successful.", Username = user.UserName!, Email = user.Email! };
+        return new AuthResponseDto { Token = token, Message = "Registration successful.", Username = user.UserName!, Email = user.Email!, AvatarUrl = user.AvatarUrl, IsProfileComplete = user.IsProfileComplete };
     }
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
@@ -78,7 +80,7 @@ public class AuthService
         }
 
         var token = GenerateJwtToken(user);
-        return new AuthResponseDto { Token = token, Message = "Login successful.", Username = user.UserName!, Email = user.Email! };
+        return new AuthResponseDto { Token = token, Message = "Login successful.", Username = user.UserName!, Email = user.Email!, AvatarUrl = user.AvatarUrl, IsProfileComplete = user.IsProfileComplete };
     }
 
     private string GenerateJwtToken(User user)
@@ -125,8 +127,118 @@ public class AuthService
         user.Gender = updateDto.Gender;
         user.DateOfBirth = updateDto.DateOfBirth;
         user.AvatarUrl = updateDto.AvatarUrl;
+        user.IsProfileComplete = true;
 
         await _context.SaveChangesAsync();
         return user;
+    }
+
+    // Google Sign-In: verify ID token, upsert/link user, and return JWT
+    public async Task<AuthResponseDto> GoogleSignInAsync(string idToken)
+    {
+        var clientId = _configuration["Google:ClientId"];
+        if (string.IsNullOrWhiteSpace(clientId))
+        {
+            return new AuthResponseDto { Message = "Google ClientId not configured." };
+        }
+
+        GoogleJsonWebSignature.Payload payload;
+        try
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new[] { clientId }
+            };
+            payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+        }
+        catch
+        {
+            return new AuthResponseDto { Message = "Invalid Google ID token." };
+        }
+
+        var sub = payload.Subject;
+        var email = payload.Email ?? string.Empty;
+        var name = payload.Name ?? string.Empty;
+        var picture = payload.Picture;
+
+        // 1) Prefer lookup by GoogleSubjectId
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.GoogleSubjectId == sub);
+
+        // 2) If not found, link by matching email
+        if (user == null && !string.IsNullOrEmpty(email))
+        {
+            user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user != null)
+            {
+                user.GoogleSubjectId = sub;
+                user.EmailConfirmed = true;
+                if (!string.IsNullOrEmpty(picture))
+                {
+                    user.AvatarUrl = picture;
+                }
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        // 3) If still not found, create a new user
+        if (user == null)
+        {
+            // Parse first/last name from full name
+            var firstName = name;
+            var lastName = string.Empty;
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                var parts = name.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                firstName = parts.Length > 0 ? parts[0] : name;
+                lastName = parts.Length > 1 ? parts[1] : string.Empty;
+            }
+
+            // Derive a unique username
+            var baseUsername = !string.IsNullOrEmpty(email) && email.Contains('@')
+                ? email.Split('@')[0]
+                : (firstName + lastName).Trim();
+            if (string.IsNullOrWhiteSpace(baseUsername)) baseUsername = "user";
+            var uniqueUsername = await GenerateUniqueUsernameAsync(baseUsername);
+
+            user = new User
+            {
+                Email = email,
+                UserName = uniqueUsername,
+                FirstName = firstName,
+                LastName = lastName,
+                AvatarUrl = !string.IsNullOrEmpty(picture) ? picture : "/avatar/MindNestLogoLight.png",
+                EmailConfirmed = true,
+                GoogleSubjectId = sub,
+                IsProfileComplete = false
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+
+        var token = GenerateJwtToken(user);
+        return new AuthResponseDto
+        {
+            Token = token,
+            Message = "Login successful.",
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            AvatarUrl = user.AvatarUrl,
+            IsProfileComplete = user.IsProfileComplete
+            
+        };
+            
+    }
+
+    private async Task<string> GenerateUniqueUsernameAsync(string baseUsername)
+    {
+        var username = baseUsername;
+        var suffix = 0;
+        while (await _context.Users.AnyAsync(u => u.UserName == username))
+        {
+            suffix++;
+            username = $"{baseUsername}{suffix}";
+        }
+        return username;
     }
 }

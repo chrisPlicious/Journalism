@@ -1,12 +1,31 @@
 import { BookOpen, PenTool, Calendar } from "lucide-react"; // Assuming you have lucide-react for icons
 import { useAuth } from "@/context/AuthContext";
+import {useState, useEffect} from "react";
+import {ProfileCompletionDialog} from "@/components/dialog";
 import MainLayout from "@/components/layouts/main-layout";
 
 export default function HomePage() {
-  const { username } = useAuth();
+  const { username, isProfileComplete } = useAuth();
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  useEffect(() => {
+    // Show dialog only once per session for incomplete profiles
+    const hasShownDialog = sessionStorage.getItem('profileDialogShown')
+    
+    if (isProfileComplete === false && !hasShownDialog) {
+      setIsDialogOpen(true)
+      sessionStorage.setItem('profileDialogShown', 'true')
+    }
+  }, [isProfileComplete])
 
   return (
     <MainLayout>
+
+      <ProfileCompletionDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
       <div className="flex-1 flex flex-col items-center justify-center min-h-screen  from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
         <div className="text-center mb-12">
           <div className="flex justify-center">

@@ -12,4 +12,15 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     public DbSet<JournalEntry> JournalEntries { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        // Ensure GoogleSubjectId is unique when not null (filtered unique index)
+        builder.Entity<User>()
+            .HasIndex(u => u.GoogleSubjectId)
+            .IsUnique()
+            .HasFilter("[GoogleSubjectId] IS NOT NULL");
+    }
 }

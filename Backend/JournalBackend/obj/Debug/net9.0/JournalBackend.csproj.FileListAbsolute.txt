@@ -347,3 +347,9 @@ C:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBa
 C:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\obj\Debug\net9.0\JournalBackend.pdb
 C:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\obj\Debug\net9.0\JournalBackend.genruntimeconfig.cache
 C:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\obj\Debug\net9.0\ref\JournalBackend.dll
+c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\Google.Apis.dll
+c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\Google.Apis.Auth.dll
+c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\Google.Apis.Core.dll
+c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\Newtonsoft.Json.dll
+c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\System.Management.dll
+c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\runtimes\win\lib\net7.0\System.Management.dll

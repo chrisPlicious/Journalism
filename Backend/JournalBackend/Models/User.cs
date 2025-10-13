@@ -13,4 +13,8 @@ public class User : IdentityUser
     public string Gender { get; set; } = string.Empty;
     public DateTime DateOfBirth { get; set; }
     public string AvatarUrl { get; set; } = "/avatar/MindNestLogoLight.png";
+
+    // For Google Sign-In linking (nullable, unique when not null)
+    public string? GoogleSubjectId { get; set; }
+    public bool IsProfileComplete { get; set; } = false;
 }

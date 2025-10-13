@@ -28,8 +28,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
-  const { updateAvatar } = useAuth();
-  const { updateUsername } = useAuth();
+  const { updateAvatar, updateUsername, setProfileComplete } = useAuth();
   const [isEditingDateOfBirth, setIsEditingDateOfBirth] = useState(false);
   const [tempDateOfBirth, setTempDateOfBirth] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
@@ -110,6 +109,8 @@ export default function ProfilePage() {
       await updateProfile(updatedProfile);
       setProfile(updatedProfile);
       updateAvatar(avatarUrl);
+      setProfileComplete?.(true);
+      sessionStorage.removeItem("profileDialogShown");
     } catch (err: any) {
       alert("Failed to update avatar: " + err.message);
     }
@@ -134,6 +135,8 @@ export default function ProfilePage() {
       await updateProfile(updatedProfile);
       setProfile(updatedProfile);
       setIsEditingDateOfBirth(false);
+      setProfileComplete?.(true);
+      sessionStorage.removeItem("profileDialogShown");
     } catch (err: any) {
       alert("Failed to update date of birth: " + err.message);
     }
@@ -165,6 +168,8 @@ export default function ProfilePage() {
       await updateProfile(updatedProfile);
       setProfile(updatedProfile);
       setIsEditingName(false);
+      setProfileComplete?.(true);
+      sessionStorage.removeItem("profileDialogShown");
     } catch (err: any) {
       alert("Failed to update name: " + err.message);
     }
@@ -196,6 +201,8 @@ export default function ProfilePage() {
       setProfile(updatedProfile);
       updateUsername(tempUsername);
       setIsEditingUsername(false);
+      setProfileComplete?.(true);
+      sessionStorage.removeItem("profileDialogShown");
     } catch (err: any) {
       alert("Failed to update username: " + err.message);
     }
@@ -222,6 +229,8 @@ export default function ProfilePage() {
       await updateProfile(updatedProfile);
       setProfile(updatedProfile);
       setIsEditingGender(false);
+      setProfileComplete?.(true);
+      sessionStorage.removeItem("profileDialogShown");
     } catch (err: any) {
       alert("Failed to update gender: " + err.message);
     }

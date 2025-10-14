@@ -26,24 +26,34 @@ export default function MainLayout({ children }: MainLayoutProps) {
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsSidebarOpen(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close sidebar overlay"
         />
       )}
 
       {/* Floating sidebar */}
-      <div
-        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 transform transition-transform duration-300 ease-in-out z-50 ${
+      <aside
+        className={`fixed top-14 md:top-16 left-0 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] w-full md:w-64 transform transition-transform duration-300 ease-in-out z-50 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        aria-label="Main navigation"
+        aria-hidden={!isSidebarOpen}
       >
         <SidebarProvider>
           <AppSidebar />
         </SidebarProvider>
-      </div>
+      </aside>
 
       {/* Main content */}
-      <div className="mx-64 min-h-screen">
+      <main className="mx-0 md:ml-64 px-4 md:px-8 min-h-screen">
         {children}
-      </div>
+      </main>
     </div>
   );
 }

@@ -110,15 +110,18 @@ export default function EntriesPage() {
 
   return (
     <MainLayout>
-      <div className="px-15 py-10 flex-1 items-center justify-center">
+      <div className="px-4 md:px-8 lg:px-12 py-6 md:py-10 flex-1 items-center justify-center">
         <div className="flex-col gap-5 items-center mb-6">
-          <h1 className="text-6xl font-bold">{username}'s Journal Entries</h1>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold">{username}'s Journal Entries</h1>
           <div className="flex gap-4 items-center">
             <Select
               value={selectedCategory}
               onValueChange={setSelectedCategory}
             >
-              <SelectTrigger className="text-[20px] font-bold bg-black text-white border-white w-50 mt-5">
+              <SelectTrigger
+                className="text-base md:text-lg lg:text-[20px] font-bold bg-black text-white border-white w-full md:w-auto md:min-w-[200px] mt-5"
+                aria-label="Filter journal entries by category"
+              >
                 <SelectValue placeholder="Filter by Category" />
               </SelectTrigger>
               <SelectContent>
@@ -140,7 +143,7 @@ export default function EntriesPage() {
                 className="flex flex-col justify-between border-neutral-800 bg-zinc-800 dark:bg-white transform hover:scale-102 transition-transform duration-500"
               >
                 <CardHeader className="text-white dark:text-black">
-                  <CardTitle className="text-2xl font-semibold ">
+                  <CardTitle className="text-xl md:text-2xl font-semibold ">
                     {entry.title}
                   </CardTitle>
                   <p className="text-sm ">{entry.category}</p>
@@ -149,10 +152,11 @@ export default function EntriesPage() {
                   <span>
                     Created: {new Date(entry.createdAt).toLocaleDateString()}
                   </span>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col md:grid md:grid-cols-2 gap-2">
                     <Button
-                      className="bg-white text-black dark:bg-black dark:text-white hover:bg-muted"
+                      className="bg-white text-black dark:bg-black dark:text-white hover:bg-muted min-h-[44px]"
                       onClick={() => handleOpen(true, entry.id)}
+                      aria-label={`View journal entry: ${entry.title}`}
                     >
                       View
                     </Button>
@@ -160,7 +164,8 @@ export default function EntriesPage() {
                       variant="destructive"
                       onClick={() => handleDelete(entry.id)}
                       disabled={loading}
-                      className=" text-white dark:bg-destructive"
+                      className="text-white dark:bg-destructive min-h-[44px]"
+                      aria-label={`Delete journal entry: ${entry.title}`}
                     >
                       {loading ? "Deleting..." : "Delete"}
                     </Button>

@@ -2,7 +2,7 @@
 // SOLID: Single Responsibility - Handle auth HTTP requests.
 
 using JournalBackend.DTOs;
-using JournalBackend.Services;
+using JournalBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,10 +15,10 @@ namespace JournalBackend.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly AuthService _authService;
+    private readonly IAuthService _authService;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(AuthService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger)
     {
         _authService = authService;
         _logger = logger;

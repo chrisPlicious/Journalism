@@ -1,6 +1,117 @@
-@JournalBackend_HostAddress = http://localhost:5218
+@JournalBackend_HostAddress = http://localhost:8080
 
-GET {{JournalBackend_HostAddress}}/weatherforecast/
-Accept: application/json
+### Register User
+POST {{JournalBackend_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "gender": "Male",
+  "dateOfBirth": "1990-01-01T00:00:00Z",
+  "email": "test@example.com",
+  "username": "testuser",
+  "password": "TestPass123!",
+  "confirmPassword": "TestPass123!"
+}
+
+###
+
+### Login User
+POST {{JournalBackend_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "loginIdentifier": "test@example.com",
+  "password": "TestPass123!"
+}
+
+###
+
+### Get Profile (requires auth token)
+GET {{JournalBackend_HostAddress}}/api/auth/profile
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Update Profile (requires auth token)
+PUT {{JournalBackend_HostAddress}}/api/auth/profile
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "firstName": "Updated",
+  "lastName": "Name"
+}
+
+###
+
+### Google Login
+POST {{JournalBackend_HostAddress}}/api/auth/google
+Content-Type: application/json
+
+{
+  "idToken": "google_id_token_here"
+}
+
+###
+
+### Get All Journal Entries (requires auth token)
+GET {{JournalBackend_HostAddress}}/api/journal
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Get Journal Entry by ID (requires auth token)
+GET {{JournalBackend_HostAddress}}/api/journal/1
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Create Journal Entry (requires auth token)
+POST {{JournalBackend_HostAddress}}/api/journal
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "title": "My First Journal Entry",
+  "category": "Personal",
+  "content": "This is the content of my journal entry."
+}
+
+###
+
+### Update Journal Entry (requires auth token)
+PUT {{JournalBackend_HostAddress}}/api/journal/1
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "title": "Updated Journal Entry",
+  "content": "Updated content."
+}
+
+###
+
+### Delete Journal Entry (requires auth token)
+DELETE {{JournalBackend_HostAddress}}/api/journal/1
+Authorization: Bearer {{auth_token}}
+
+###
+
+### Test Unauthorized Access (no token)
+GET {{JournalBackend_HostAddress}}/api/journal
+
+###
+
+### Test Invalid Data
+POST {{JournalBackend_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "userName": "",
+  "email": "invalid-email",
+  "password": "123"
+}
 
 ###

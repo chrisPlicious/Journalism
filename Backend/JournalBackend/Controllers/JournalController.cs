@@ -5,7 +5,7 @@
 
 using System.Security.Claims;
 using JournalBackend.DTOs;
-using JournalBackend.Services;
+using JournalBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,9 +16,9 @@ namespace JournalBackend.Controllers;
 [Route("api/[controller]")]
 public class JournalController : ControllerBase
 {
-    private readonly JournalService _journalService;
+    private readonly IJournalService _journalService;
 
-    public JournalController(JournalService journalService)
+    public JournalController(IJournalService journalService)
     {
         _journalService = journalService;
     }

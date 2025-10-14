@@ -6,38 +6,37 @@
 using JournalBackend.Data;
 using JournalBackend.DTOs;
 using JournalBackend.Models;
+using JournalBackend.Repositories.Interfaces;
+using JournalBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace JournalBackend.Services;
+namespace JournalBackend.Services.Implementations;
 
-public class JournalService
+public class JournalService : IJournalService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IJournalEntryRepository _journalEntryRepository;
 
-    public JournalService(ApplicationDbContext context)
+    public JournalService(IJournalEntryRepository journalEntryRepository)
     {
-        _context = context;
+        _journalEntryRepository = journalEntryRepository;
     }
 
     public async Task<IEnumerable<JournalEntryDto>> GetAllEntriesAsync(string userId)
     {
-        return await _context.JournalEntries
-            .Where(e => e.UserId == userId)
-            .Select(e => new JournalEntryDto
-            {
-                Id = e.Id,
-                Title = e.Title,
-                Category = e.Category,
-                Content = e.Content,
-                CreatedAt = e.CreatedAt
-            })
-            .ToListAsync();
+        var entries = await _journalEntryRepository.GetEntriesByUserIdAsync(userId);
+        return entries.Select(e => new JournalEntryDto
+        {
+            Id = e.Id,
+            Title = e.Title,
+            Category = e.Category,
+            Content = e.Content,
+            CreatedAt = e.CreatedAt
+        });
     }
 
     public async Task<JournalEntryDetailDto?> GetEntryByIdAsync(int id, string userId)
     {
-        var entry = await _context.JournalEntries
-            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
+        var entry = await _journalEntryRepository.GetEntryByIdAndUserIdAsync(id, userId);
 
         if (entry == null) return null;
 
@@ -55,10 +54,9 @@ public class JournalService
     public async Task<JournalEntryDetailDto> CreateEntryAsync(JournalEntryCreateDto dto, string userId)
     {
         // Check if title already exists for this user
-        var existingEntry = await _context.JournalEntries
-            .FirstOrDefaultAsync(e => e.UserId == userId && e.Title == dto.Title);
+        var titleTaken = await _journalEntryRepository.IsTitleTakenByUserAsync(dto.Title, userId);
 
-        if (existingEntry != null)
+        if (titleTaken)
         {
             throw new InvalidOperationException("A journal entry with this title already exists.");
         }
@@ -71,8 +69,8 @@ public class JournalService
             UserId = userId
         };
 
-        _context.JournalEntries.Add(entry);
-        await _context.SaveChangesAsync();
+        await _journalEntryRepository.AddAsync(entry);
+        await _journalEntryRepository.SaveChangesAsync();
 
         return new JournalEntryDetailDto
         {
@@ -87,8 +85,7 @@ public class JournalService
 
     public async Task<bool> UpdateEntryAsync(int id, JournalEntryCreateDto dto, string userId)
     {
-        var entry = await _context.JournalEntries
-            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
+        var entry = await _journalEntryRepository.GetEntryByIdAndUserIdAsync(id, userId);
 
         if (entry == null) return false;
 
@@ -97,19 +94,19 @@ public class JournalService
         entry.Content = dto.Content;
         entry.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        _journalEntryRepository.Update(entry);
+        await _journalEntryRepository.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteEntryAsync(int id, string userId)
     {
-        var entry = await _context.JournalEntries
-            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
+        var entry = await _journalEntryRepository.GetEntryByIdAndUserIdAsync(id, userId);
 
         if (entry == null) return false;
 
-        _context.JournalEntries.Remove(entry);
-        await _context.SaveChangesAsync();
+        _journalEntryRepository.Remove(entry);
+        await _journalEntryRepository.SaveChangesAsync();
         return true;
     }
 }

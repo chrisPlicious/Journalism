@@ -1,6 +1,10 @@
 using JournalBackend.Data;
 using JournalBackend.Models;
 using JournalBackend.Services;
+using JournalBackend.Services.Interfaces;
+using JournalBackend.Services.Implementations;
+using JournalBackend.Repositories.Interfaces;
+using JournalBackend.Repositories.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,23 +15,32 @@ using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// =================================================================================================
+// 1. CONFIGURATION AND SETTINGS SETUP
+// =================================================================================================
+
+// Configure OpenAPI/Swagger
 builder.Services.AddOpenApi();
 
-// OOP: Configuring services in DI container.
-// OOP Pillars: Abstraction (configuring services abstracts setup).
-// SOLID: Dependency Inversion - Injecting abstractions.
-// LINQ: Not used.
+// =================================================================================================
+// 2. DATABASE AND ENTITY FRAMEWORK CONFIGURATION
+// =================================================================================================
 
+// Configure Entity Framework with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()));
 
+// Configure ASP.NET Core Identity
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// =================================================================================================
+// 3. AUTHENTICATION AND AUTHORIZATION SETUP
+// =================================================================================================
+
+// Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -49,11 +62,26 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<JournalService>();
+// =================================================================================================
+// 4. SERVICE REGISTRATIONS (REPOSITORIES AND SERVICES)
+// =================================================================================================
 
+// Register repositories with their interfaces
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
+
+// Register services with their interfaces
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJournalService, JournalService>();
+
+// =================================================================================================
+// 5. MIDDLEWARE PIPELINE CONFIGURATION
+// =================================================================================================
+
+// Add MVC controllers
 builder.Services.AddControllers();
 
+// Configure CORS policy
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -65,7 +93,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+// Configure Swagger/OpenAPI
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Journal API", Version = "v1" });
@@ -94,9 +122,13 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// =================================================================================================
+// 6. APPLICATION STARTUP
+// =================================================================================================
+
 var app = builder.Build();
 
-// Run migrations in development
+// Run database migrations in development environment
 if (app.Environment.IsDevelopment())
 {
     try
@@ -114,7 +146,7 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

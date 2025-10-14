@@ -10,20 +10,22 @@ using BCrypt.Net;
 using JournalBackend.Data;
 using JournalBackend.DTOs;
 using JournalBackend.Models;
+using JournalBackend.Repositories.Interfaces;
+using JournalBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Google.Apis.Auth;
 
-namespace JournalBackend.Services;
+namespace JournalBackend.Services.Implementations;
 
-public class AuthService
+public class AuthService : IAuthService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
 
-    public AuthService(ApplicationDbContext context, IConfiguration configuration)
+    public AuthService(IUserRepository userRepository, IConfiguration configuration)
     {
-        _context = context;
+        _userRepository = userRepository;
         _configuration = configuration;
     }
 
@@ -37,8 +39,8 @@ public class AuthService
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
     {
         // Check if user exists
-        var existingUser = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == registerDto.Email || u.UserName == registerDto.Username);
+        var existingUser = await _userRepository.GetUserByEmailOrUsernameAsync(registerDto.Email) ??
+                          await _userRepository.GetUserByEmailOrUsernameAsync(registerDto.Username);
         if (existingUser != null)
         {
             return new AuthResponseDto { Message = "User already exists." };
@@ -62,8 +64,8 @@ public class AuthService
             IsProfileComplete = true  // Regular registration has complete profile
         };
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        await _userRepository.AddAsync(user);
+        await _userRepository.SaveChangesAsync();
 
         var token = GenerateJwtToken(user);
         return new AuthResponseDto { Token = token, Message = "Registration successful.", Username = user.UserName!, Email = user.Email!, AvatarUrl = user.AvatarUrl, IsProfileComplete = user.IsProfileComplete };
@@ -71,8 +73,7 @@ public class AuthService
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == loginDto.LoginIdentifier || u.UserName == loginDto.LoginIdentifier);
+        var user = await _userRepository.GetUserByEmailOrUsernameAsync(loginDto.LoginIdentifier);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
         {
@@ -105,7 +106,7 @@ public class AuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    internal async Task LogoutAsync()
+    public async Task LogoutAsync()
     {
         // JWT logout is handled client-side by discarding the token
         await Task.CompletedTask;
@@ -113,12 +114,12 @@ public class AuthService
 
     public async Task<User?> GetUserByIdAsync(string id)
     {
-        return await _context.Users.FindAsync(id);
+        return await _userRepository.GetByIdAsync(id);
     }
 
     public async Task<User?> UpdateUserProfileAsync(string userId, UserProfileUpdateDto updateDto)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _userRepository.GetByIdAsync(userId);
         if (user == null) return null;
 
         user.FirstName = updateDto.FirstName;
@@ -129,7 +130,8 @@ public class AuthService
         user.AvatarUrl = updateDto.AvatarUrl;
         user.IsProfileComplete = true;
 
-        await _context.SaveChangesAsync();
+        _userRepository.Update(user);
+        await _userRepository.SaveChangesAsync();
         return user;
     }
 
@@ -162,12 +164,12 @@ public class AuthService
         var picture = payload.Picture;
 
         // 1) Prefer lookup by GoogleSubjectId
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.GoogleSubjectId == sub);
+        var user = await _userRepository.GetUserByGoogleSubjectIdAsync(sub);
 
         // 2) If not found, link by matching email
         if (user == null && !string.IsNullOrEmpty(email))
         {
-            user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            user = await _userRepository.GetUserByEmailAsync(email);
             if (user != null)
             {
                 user.GoogleSubjectId = sub;
@@ -176,7 +178,8 @@ public class AuthService
                 {
                     user.AvatarUrl = picture;
                 }
-                await _context.SaveChangesAsync();
+                _userRepository.Update(user);
+                await _userRepository.SaveChangesAsync();
             }
         }
 
@@ -198,7 +201,7 @@ public class AuthService
                 ? email.Split('@')[0]
                 : (firstName + lastName).Trim();
             if (string.IsNullOrWhiteSpace(baseUsername)) baseUsername = "user";
-            var uniqueUsername = await GenerateUniqueUsernameAsync(baseUsername);
+            var uniqueUsername = await _userRepository.GenerateUniqueUsernameAsync(baseUsername);
 
             user = new User
             {
@@ -212,8 +215,8 @@ public class AuthService
                 IsProfileComplete = false
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync();
         }
 
         var token = GenerateJwtToken(user);
@@ -230,15 +233,4 @@ public class AuthService
             
     }
 
-    private async Task<string> GenerateUniqueUsernameAsync(string baseUsername)
-    {
-        var username = baseUsername;
-        var suffix = 0;
-        while (await _context.Users.AnyAsync(u => u.UserName == username))
-        {
-            suffix++;
-            username = $"{baseUsername}{suffix}";
-        }
-        return username;
-    }
 }

@@ -97,7 +97,7 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
         variant="ghost"
         size="sm"
         onClick={onSidebarToggle}
-        className="hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px]"
+        // className="hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px]"
         aria-label="Toggle sidebar menu"
       >
         <Menu className="h-6 w-6 md:h-5 md:w-5" />

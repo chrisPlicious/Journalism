@@ -93,18 +93,20 @@ export default function NewEntryPage() {
               What's on your mind, {username}?
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-3 space-y-0 gap-10 mt-4 mx-4">
+          {/* <CardContent className="grid md:grid-cols-3   space-y-0 gap-10 mt-4 mx-4">
             <label className="scroll-m-20 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
               Title
             </label>
             <label className="scroll-m-20 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
               Category
             </label>
-          </CardContent>
-          <CardContent className="grid grid-cols-3 space-y-0 gap-10 mx-4">
+          </CardContent> */}
+          <CardContent className="grid md:grid-cols-3  space-y-0 gap-10 mx-4">
+
             <Input
               type="text"
               value={title}
+              placeholder="Title"
               onChange={(e) => setTitle(e.target.value)}
               className={`bg-white dark:bg-zinc-700 text-gray-900 dark:text-white ${
                 error.title ? "border-red-500 focus-visible:ring-red-500" : ""
@@ -144,9 +146,9 @@ export default function NewEntryPage() {
             </Select>
           </CardContent>
           <CardContent>
-            <label className="scroll-m-20 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+            {/* <label className="scroll-m-20 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
               Content
-            </label>
+            </label> */}
             <ShadcnTextEditor
               value={content}
               onChange={setContent}

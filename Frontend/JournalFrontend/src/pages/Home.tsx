@@ -40,10 +40,10 @@ export default function HomePage() {
               className="h-50 w-auto hidden dark:block"
             />
           </div>
-          <h1 className="text-7xl font-extrabold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-3xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-4">
             Hello {username}, <br /> Welcome to MindNest.
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-md md:text-xl text-gray-600 dark:text-gray-300">
             Capture your thoughts, track your journey, and reflect on your life.
           </p>
         </div>

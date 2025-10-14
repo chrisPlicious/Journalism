@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
+// import { useIsMobile } from "@/hooks/use-mobile";
 import AppSidebar from "./app-sidebar";
 import Header from "./header";
 
@@ -8,6 +9,7 @@ interface MainLayoutProps {
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
+  // const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSidebarToggle = () => {
@@ -51,7 +53,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </aside>
 
       {/* Main content */}
-      <main className="mx-0 md:ml-64 px-4 md:px-8 min-h-screen">
+      <main className="mx-0 md:ml-0 px-4 md:px-8 min-h-screen">
         {children}
       </main>
     </div>

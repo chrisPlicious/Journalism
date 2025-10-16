@@ -93,18 +93,27 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
   return (
     <header className="h-14 md:h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 sticky top-0 z-50">
       {/* Left: Sidebar toggle */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onSidebarToggle}
-        // className="hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px]"
-        aria-label="Toggle sidebar menu"
-      >
-        <Menu className="h-6 w-6 md:h-5 md:w-5" />
-      </Button>
+      <div className="flex items-center gap-2 md:gap-7">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onSidebarToggle}
+          // className="hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px]"
+          aria-label="Toggle sidebar menu"
+        >
+          <Menu className="h-6 w-6 md:h-5 md:w-5" />
+        </Button>
+
+        <h1 className="hidden md:block md:text-2xl font-extrabold dark:text-white">
+          MindNest
+        </h1>
+      </div>
 
       {/* Center: Global search bar */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-full md:max-w-2xl mx-2 md:mx-4">
+      <form
+        onSubmit={handleSearch}
+        className="flex-1 max-w-full md:max-w-2xl mx-2 md:mx-4"
+      >
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 md:h-4 md:w-4 text-gray-400" />
 
@@ -136,7 +145,9 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
           size="sm"
           onClick={toggleTheme}
           className="hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px]"
-          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          aria-label={
+            theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+          }
         >
           {theme === "dark" ? (
             <Sun className="h-6 w-6 md:h-5 md:w-5" />

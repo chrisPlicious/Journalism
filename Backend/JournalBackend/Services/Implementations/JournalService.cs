@@ -3,35 +3,30 @@
 // SOLID: Single Responsibility - Handle journal CRUD.
 // LINQ: Used extensively in queries (Where, Select, FirstOrDefaultAsync).
 
-using JournalBackend.Data;
 using JournalBackend.DTOs;
 using JournalBackend.Models;
 using JournalBackend.Repositories.Interfaces;
 using JournalBackend.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+
 
 namespace JournalBackend.Services.Implementations;
 
 public class JournalService : IJournalService
 {
     private readonly IJournalEntryRepository _journalEntryRepository;
+    private readonly IMapper _mapper;
 
-    public JournalService(IJournalEntryRepository journalEntryRepository)
+    public JournalService(IJournalEntryRepository journalEntryRepository, IMapper mapper)
     {
         _journalEntryRepository = journalEntryRepository;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<JournalEntryDto>> GetAllEntriesAsync(string userId)
     {
         var entries = await _journalEntryRepository.GetEntriesByUserIdAsync(userId);
-        return entries.Select(e => new JournalEntryDto
-        {
-            Id = e.Id,
-            Title = e.Title,
-            Category = e.Category,
-            Content = e.Content,
-            CreatedAt = e.CreatedAt
-        });
+        return _mapper.Map<IEnumerable<JournalEntryDto>>(entries);
     }
 
     public async Task<JournalEntryDetailDto?> GetEntryByIdAsync(int id, string userId)
@@ -40,15 +35,7 @@ public class JournalService : IJournalService
 
         if (entry == null) return null;
 
-        return new JournalEntryDetailDto
-        {
-            Id = entry.Id,
-            Title = entry.Title,
-            Category = entry.Category,
-            Content = entry.Content,
-            CreatedAt = entry.CreatedAt,
-            UpdatedAt = entry.UpdatedAt
-        };
+        return _mapper.Map<JournalEntryDetailDto>(entry);
     }
 
     public async Task<JournalEntryDetailDto> CreateEntryAsync(JournalEntryCreateDto dto, string userId)
@@ -61,26 +48,13 @@ public class JournalService : IJournalService
             throw new InvalidOperationException("A journal entry with this title already exists.");
         }
 
-        var entry = new JournalEntry
-        {
-            Title = dto.Title,
-            Category = dto.Category,
-            Content = dto.Content,
-            UserId = userId
-        };
+        var entry = _mapper.Map<JournalEntry>(dto);
+        entry.UserId = userId;
 
         await _journalEntryRepository.AddAsync(entry);
         await _journalEntryRepository.SaveChangesAsync();
 
-        return new JournalEntryDetailDto
-        {
-            Id = entry.Id,
-            Title = entry.Title,
-            Category = entry.Category,
-            Content = entry.Content,
-            CreatedAt = entry.CreatedAt,
-            UpdatedAt = entry.UpdatedAt
-        };
+        return _mapper.Map<JournalEntryDetailDto>(entry);
     }
 
     public async Task<bool> UpdateEntryAsync(int id, JournalEntryCreateDto dto, string userId)

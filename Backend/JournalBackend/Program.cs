@@ -1,6 +1,5 @@
 using JournalBackend.Data;
 using JournalBackend.Models;
-using JournalBackend.Services;
 using JournalBackend.Services.Interfaces;
 using JournalBackend.Services.Implementations;
 using JournalBackend.Repositories.Interfaces;
@@ -10,10 +9,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using AutoMapper;
+using JournalBackend.Profiles;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAutoMapper(typeof(UserMappingProfile).Assembly);
 
 // =================================================================================================
 // 1. CONFIGURATION AND SETTINGS SETUP

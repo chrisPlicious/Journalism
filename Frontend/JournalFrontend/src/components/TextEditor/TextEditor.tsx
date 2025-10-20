@@ -287,9 +287,10 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
                 };
               }
             }}
+            
             contentEditable={!disabled}
             className={cn(
-              "min-h-[200px] w-full rounded-md border p-3 focus:outline-none focus:ring-2 focus:ring-ring",
+              "min-h-[300px] w-full rounded-md border p-3 focus:outline-none focus:ring-2 focus:ring-ring",
               error && "border-destructive focus:ring-destructive",
               disabled && "opacity-50 cursor-not-allowed bg-muted"
             )}

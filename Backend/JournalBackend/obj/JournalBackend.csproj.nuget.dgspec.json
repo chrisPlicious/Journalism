@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {}
+    "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {}
   },
   "projects": {
-    "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {
+    "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
+        "projectUniqueName": "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
         "projectName": "JournalBackend",
-        "projectPath": "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
+        "projectPath": "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
         "packagesPath": "C:\\Users\\TRAINEE-MATUGUINA\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\obj\\",
+        "outputPath": "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,6 +50,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
             "BCrypt.Net-Next": {
               "target": "Package",
               "version": "[4.0.3, )"

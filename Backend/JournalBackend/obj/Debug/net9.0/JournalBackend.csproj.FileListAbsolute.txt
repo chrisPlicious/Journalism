@@ -353,3 +353,5 @@ c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBa
 c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\Newtonsoft.Json.dll
 c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\System.Management.dll
 c:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\runtimes\win\lib\net7.0\System.Management.dll
+C:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\AutoMapper.dll
+C:\Users\TRAINEE-MATUGUINA\Documents\JournalProject\Journalism\Backend\JournalBackend\bin\Debug\net9.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll

@@ -5,9 +5,8 @@ using JournalBackend.DTOs;
 using JournalBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using AutoMapper;
 
 namespace JournalBackend.Controllers;
 
@@ -17,11 +16,13 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly ILogger<AuthController> _logger;
+    private readonly IMapper _mapper;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger, IMapper mapper)
     {
         _authService = authService;
         _logger = logger;
+        _mapper = mapper;
     }
 
     [HttpPost("register")]
@@ -50,127 +51,94 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
-     [HttpGet("{id}")]
-        public async Task<ActionResult<UserProfileDto>> GetUserById(string id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserProfileDto>> GetUserById(string id)
+    {
+        _logger.LogInformation("Attempting to get user by id: {Id}", id);
+        var user = await _authService.GetUserByIdAsync(id);
+        if (user == null)
         {
-            _logger.LogInformation("Attempting to get user by id: {Id}", id);
-            var user = await _authService.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                _logger.LogWarning("User with id {Id} not found", id);
-                return NotFound();
-            }
-
-            _logger.LogInformation("User found: {UserName}", user.UserName);
-
-            // ✅ Mapping directly inside controller
-            var dto = new UserProfileDto
-            {
-                Id = user.Id,
-                UserName = user.UserName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Gender = user.Gender,
-                DateOfBirth = user.DateOfBirth,
-                AvatarUrl = user.AvatarUrl
-            };
-
-            return Ok(dto);
+            _logger.LogWarning("User with id {Id} not found", id);
+            return NotFound();
         }
 
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            await _authService.LogoutAsync();
-            return Ok();
+        _logger.LogInformation("User found: {UserName}", user.UserName);
 
+        // ✅ Mapping directly inside controller
+        var dto = _mapper.Map<UserProfileDto>(user);
+        return Ok(dto);
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        await _authService.LogoutAsync();
+        return Ok();
+
+    }
+
+    [Authorize]
+    [HttpGet("profile")]
+    public async Task<ActionResult<UserProfileDto>> GetProfile()
+    {
+        _logger.LogInformation("GetProfile called. IsAuthenticated: {Auth}", User.Identity?.IsAuthenticated);
+        _logger.LogInformation("Claims: {Claims}", string.Join(", ", User.Claims.Select(c => $"{c.Type}: {c.Value}")));
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            _logger.LogWarning("User ID not found in token");
+            return Unauthorized();
         }
 
-        [Authorize]
-        [HttpGet("profile")]
-        public async Task<ActionResult<UserProfileDto>> GetProfile()
+        _logger.LogInformation("Getting profile for user: {UserId}", userId);
+        var user = await _authService.GetUserByIdAsync(userId);
+        if (user == null)
         {
-            _logger.LogInformation("GetProfile called. IsAuthenticated: {Auth}", User.Identity?.IsAuthenticated);
-            _logger.LogInformation("Claims: {Claims}", string.Join(", ", User.Claims.Select(c => $"{c.Type}: {c.Value}")));
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                _logger.LogWarning("User ID not found in token");
-                return Unauthorized();
-            }
-
-            _logger.LogInformation("Getting profile for user: {UserId}", userId);
-            var user = await _authService.GetUserByIdAsync(userId);
-            if (user == null)
-            {
-                _logger.LogWarning("User not found: {UserId}", userId);
-                return NotFound();
-            }
-
-            var dto = new UserProfileDto
-            {
-                Id = user.Id,
-                UserName = user.UserName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Gender = user.Gender,
-                DateOfBirth = user.DateOfBirth,
-                AvatarUrl = user.AvatarUrl
-            };
-
-            return Ok(dto);
+            _logger.LogWarning("User not found: {UserId}", userId);
+            return NotFound();
         }
 
-        [Authorize]
-        [HttpPut("profile")]
-        public async Task<ActionResult<UserProfileDto>> UpdateProfile([FromBody] UserProfileUpdateDto updateDto)
+        var dto = _mapper.Map<UserProfileDto>(user);
+        return Ok(dto);
+    }
+
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<ActionResult<UserProfileDto>> UpdateProfile([FromBody] UserProfileUpdateDto updateDto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                _logger.LogWarning("User ID not found in token");
-                return Unauthorized();
-            }
-
-            _logger.LogInformation("Updating profile for user: {UserId}", userId);
-            var updatedUser = await _authService.UpdateUserProfileAsync(userId, updateDto);
-            if (updatedUser == null)
-            {
-                _logger.LogWarning("User not found for update: {UserId}", userId);
-                return NotFound();
-            }
-
-            var dto = new UserProfileDto
-            {
-                Id = updatedUser.Id,
-                UserName = updatedUser.UserName ?? string.Empty,
-                Email = updatedUser.Email ?? string.Empty,
-                FirstName = updatedUser.FirstName,
-                LastName = updatedUser.LastName,
-                Gender = updatedUser.Gender,
-                DateOfBirth = updatedUser.DateOfBirth,
-                AvatarUrl = updatedUser.AvatarUrl
-            };
-
-            return Ok(dto);
+            _logger.LogWarning("User ID not found in token");
+            return Unauthorized();
         }
 
-        [AllowAnonymous]
-        [HttpPost("google")]
-        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+        _logger.LogInformation("Updating profile for user: {UserId}", userId);
+        var updatedUser = await _authService.UpdateUserProfileAsync(userId, updateDto);
+        if (updatedUser == null)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.IdToken))
-                return BadRequest("Missing Google ID token.");
-
-            var result = await _authService.GoogleSignInAsync(dto.IdToken);
-            if (string.IsNullOrEmpty(result.Token))
-                return Unauthorized(result.Message);
-
-            return Ok(result);
+            _logger.LogWarning("User not found for update: {UserId}", userId);
+            return NotFound();
         }
+
+        var dto = _mapper.Map<UserProfileDto>(updatedUser);
+        return Ok(dto);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+    {
+        if (dto == null || string.IsNullOrWhiteSpace(dto.IdToken))
+            return BadRequest("Missing Google ID token.");
+
+        var result = await _authService.GoogleSignInAsync(dto.IdToken);
+        if (string.IsNullOrEmpty(result.Token))
+            return Unauthorized(result.Message);
+
+        return Ok(result);
+    }
 }

@@ -29,7 +29,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
           onKeyDown={(e) => {
-            if (e.key === 'Escape') {
+            if (e.key === "Escape") {
               setIsSidebarOpen(false);
             }
           }}
@@ -42,7 +42,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       {/* Floating sidebar */}
       <aside
         className={`fixed top-14 md:top-16 left-0 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] w-full md:w-64 transform transition-transform duration-300 ease-in-out z-50 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label="Main navigation"
         aria-hidden={!isSidebarOpen}
@@ -53,9 +53,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </aside>
 
       {/* Main content */}
-      <main className="mx-0 md:ml-0 px-4 md:px-8 min-h-screen">
-        {children}
-      </main>
+      <main className="mx-0 md:mx-60 px-4 md:px-8 min-h-screen">{children}</main>
     </div>
   );
 }

@@ -85,6 +85,21 @@ export const searchJournalsByTitle = async (query: string) => {
   return res.data;
 };
 
+// pin
+// Pin
+export const journalPin = async (id: number) => {
+  return await axios.patch(`${API_URL}/journal/${id}/pin`, null, {
+    headers: getAuthHeaders(),
+  });
+};
+
+// Favorite
+export const journalFavorite = async (id: number) => {
+  return await axios.patch(`${API_URL}/journal/${id}/favorite`, null, {
+    headers: getAuthHeaders(),
+  });
+};
+
 // Google Sign-In: exchange Google ID token for our JWT
 export const googleLogin = async (idToken: string) => {
   const res = await axios.post(`${API_URL}/auth/google`, { idToken });

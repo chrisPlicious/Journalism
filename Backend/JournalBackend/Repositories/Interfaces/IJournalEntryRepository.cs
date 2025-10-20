@@ -8,4 +8,6 @@ public interface IJournalEntryRepository : IRepository<JournalEntry>
     Task<JournalEntry?> GetEntryByIdAndUserIdAsync(int id, string userId);
     Task<bool> IsTitleTakenByUserAsync(string title, string userId);
     Task<bool> IsTitleTakenByUserAsync(string title, string userId, int excludeId);
+    Task<int> CountPinnedEntriesAsync(string userId);
+
 }

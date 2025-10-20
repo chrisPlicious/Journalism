@@ -12,4 +12,6 @@ public class JournalEntryDto
     public string Category { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public bool IsPinned { get; set; } = false;
+    public bool IsFavorite { get; set; } = false;
 }

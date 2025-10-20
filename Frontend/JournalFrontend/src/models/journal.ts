@@ -10,6 +10,8 @@ export interface JournalEntryDto {
   category: string;
   content: string;
   createdAt: string; // ISO date string from backend
+  isPinned: boolean;
+  isFavorite: boolean;
 }
 
 export interface JournalEntryDetailDto {

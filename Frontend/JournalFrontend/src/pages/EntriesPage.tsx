@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { getJournals, deleteJournal, getJournalById } from "../services/api"; // Use your API
+import {
+  getJournals,
+  deleteJournal,
+  getJournalById,
+  journalFavorite,
+  journalPin,
+} from "../services/api"; // Use your API
 import type { JournalEntryDto, JournalEntryDetailDto } from "../models/journal"; // Use your types
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import MainLayout from "../components/layouts/main-layout";
-
 import {
   Select,
   SelectContent,
@@ -14,9 +19,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import JournalDialog from "../components/Viewer/EntryView"; // Use customized dialog
 import { Separator } from "@/components/ui/separator";
 import { toast, Toaster } from "sonner";
+import { Pin, Star } from "lucide-react";
 
 export default function EntriesPage() {
   const [journals, setJournals] = useState<JournalEntryDto[]>([]);
@@ -28,7 +41,7 @@ export default function EntriesPage() {
   const { username } = useAuth();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   useEffect(() => {
     getJournals()
       .then((data) => {
@@ -43,7 +56,7 @@ export default function EntriesPage() {
     // Prefer `q`; support legacy `search` then normalize URL to `q`
     const q = searchParams.get("q");
     const legacy = searchParams.get("search");
-    const next = (q ?? legacy ?? "");
+    const next = q ?? legacy ?? "";
     setSearchQuery(next);
 
     if (!q && legacy) {
@@ -54,6 +67,35 @@ export default function EntriesPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
+
+  const handleFavorite = async (id: number) => {
+    try {
+      const res = await journalFavorite(id);
+      setJournals((prev) =>
+        prev.map((j) =>
+          j.id === id ? { ...j, isFavorite: res.data.isFavorite } : j
+        )
+      );
+    } catch (error: any) {
+      toast.error("Failed to update favorite status");
+    }
+  };
+
+  const handlePin = async (id: number) => {
+    try {
+      const res = await journalPin(id);
+      setJournals(
+        (prev) =>
+          prev
+            .map((j) =>
+              j.id === id ? { ...j, isPinned: res.data.isPinned } : j
+            )
+            .sort((a, b) => Number(b.isPinned) - Number(a.isPinned)) // reorder pinned first
+      );
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to pin entry");
+    }
+  };
 
   const handleDelete = (id: number) => {
     toast("Are you sure you want to delete?", {
@@ -91,13 +133,25 @@ export default function EntriesPage() {
 
   const qText = searchQuery.trim().toLowerCase();
   const filteredJournals = journals.filter((journal) => {
-    const matchesCategory =
-      selectedCategory === "all" || journal.category === selectedCategory;
+    // Favorites filter
+    if (selectedCategory === "favorites" && !journal.isFavorite) return false;
+
+    // Category filter
+    if (
+      selectedCategory !== "all" &&
+      selectedCategory !== "favorites" &&
+      journal.category !== selectedCategory
+    ) {
+      return false;
+    }
+
+    // Search filter
     const matchesText =
       qText === "" ||
       journal.title.toLowerCase().includes(qText) ||
       journal.content.toLowerCase().includes(qText);
-    return matchesCategory && matchesText;
+
+    return matchesText;
   });
 
   if (loading) {
@@ -112,7 +166,9 @@ export default function EntriesPage() {
     <MainLayout>
       <div className="px-4 md:px-8 lg:px-12 py-6 md:py-10 flex-1 items-center justify-center">
         <div className="flex-col gap-5 items-center mb-6">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold">{username}'s Journal Entries</h1>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold">
+            {username}'s Journal Entries
+          </h1>
           <div className="flex gap-4 items-center">
             <Select
               value={selectedCategory}
@@ -126,6 +182,7 @@ export default function EntriesPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="favorites">Favorites</SelectItem>
                 <SelectItem value="work">Work</SelectItem>
                 <SelectItem value="personal">Personal</SelectItem>
                 <SelectItem value="study">Study</SelectItem>
@@ -143,8 +200,65 @@ export default function EntriesPage() {
                 className="flex flex-col justify-between border-neutral-800 bg-zinc-800 dark:bg-white transform hover:scale-102 transition-transform duration-500"
               >
                 <CardHeader className="text-white dark:text-black">
-                  <CardTitle className="text-xl md:text-2xl font-semibold ">
-                    {entry.title}
+                  <CardTitle className="flex justify-between text-xl md:text-2xl font-semibold ">
+                    <div>{entry.title}</div>
+                    <div className="grid grid-cols-2 gap-5">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={async () => handleFavorite(entry.id)}
+                            className={`p-1 hover:opacity-100 transition ${
+                              entry.isFavorite
+                                ? "text-white dark:text-black" // ✅ white in light mode, black in dark mode
+                                : "text-gray-400" // not favorited yet
+                            }`}
+                          >
+                            <Star
+                              className="w-7 h-7"
+                              style={{
+                                fill: entry.isFavorite
+                                  ? "currentColor"
+                                  : "none",
+                                stroke: "currentColor",
+                              }}
+                            />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            {entry.isFavorite
+                              ? "Remove from favorites"
+                              : "Add to favorites"}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={async () => handlePin(entry.id)}
+                            className={`p-1 hover:opacity-100 transition ${
+                              entry.isPinned
+                                ? "text-white dark:text-black"
+                                : "text-gray-400"
+                            }`}
+                          >
+                            <Pin
+                              className="w-7 h-7"
+                              strokeWidth={entry.isPinned ? 3 : 2}
+                              style={{
+                                fill: entry.isPinned ? "currentColor" : "none",
+                                stroke: "currentColor",
+                                transition: "0.2s ease",
+                              }}
+                            />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{entry.isPinned ? "Unpin" : "Pin to top"}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </CardTitle>
                   <p className="text-sm ">{entry.category}</p>
                 </CardHeader>
@@ -152,7 +266,10 @@ export default function EntriesPage() {
                   <span>
                     Created: {new Date(entry.createdAt).toLocaleDateString()}
                   </span>
+
                   <div className="flex flex-col md:grid md:grid-cols-2 gap-2">
+                    {/* 📌 Pin Button */}
+
                     <Button
                       className="bg-white text-black dark:bg-black dark:text-white hover:bg-muted min-h-[44px]"
                       onClick={() => handleOpen(true, entry.id)}

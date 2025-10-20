@@ -1,6 +1,7 @@
 using JournalBackend.Data;
 using JournalBackend.Models;
 using JournalBackend.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace JournalBackend.Repositories.Implementations;
 
@@ -29,4 +30,12 @@ public class JournalEntryRepository : Repository<JournalEntry>, IJournalEntryRep
     {
         return await AnyAsync(e => e.Title == title && e.UserId == userId && e.Id != excludeId);
     }
+
+    public async Task<int> CountPinnedEntriesAsync(string userId)
+{
+    return await _context.JournalEntries
+        .Where(j => j.UserId == userId && j.IsPinned)
+        .CountAsync();
+}
+
 }

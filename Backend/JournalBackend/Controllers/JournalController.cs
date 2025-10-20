@@ -8,6 +8,7 @@ using JournalBackend.DTOs;
 using JournalBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static System.Net.WebRequestMethods;
 
 namespace JournalBackend.Controllers;
 
@@ -26,10 +27,22 @@ public class JournalController : ControllerBase
     private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
     [HttpGet]
-    public async Task<IActionResult> GetAllEntries()
+    public async Task<IActionResult> GetAllEntries([FromQuery] string? filter)
     {
         var userId = GetUserId();
         var entries = await _journalService.GetAllEntriesAsync(userId);
+
+        // ✅ Filter logic
+        if (!string.IsNullOrEmpty(filter))
+        {
+            filter = filter.ToLower();
+
+            if (filter == "pinned")
+                entries = entries.Where(e => e.IsPinned).ToList();
+            else if (filter == "favorites")
+                entries = entries.Where(e => e.IsFavorite).ToList();
+        }
+
         return Ok(entries);
     }
 
@@ -74,6 +87,36 @@ public class JournalController : ControllerBase
             return NotFound();
 
         return NoContent();
+    }
+
+    [HttpPatch("{id}/pin")]
+    public async Task<IActionResult> TogglePin(int id)
+    {
+        var userId = GetUserId();
+
+        try
+        {
+            var updatedEntry = await _journalService.TogglePinAsync(id, userId);
+            if (updatedEntry == null)
+                return NotFound();
+            return Ok(updatedEntry);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+
+    }
+
+    [HttpPatch("{id}/favorite")]
+    public async Task<IActionResult> ToggleFavorite(int id)
+    {
+        var userId = GetUserId();
+
+        var updatedEntry = await _journalService.ToggleFavoriteAsync(id, userId);
+        if (updatedEntry == null)
+            return NotFound();
+        return Ok(updatedEntry);
     }
 
     [HttpDelete("{id}")]

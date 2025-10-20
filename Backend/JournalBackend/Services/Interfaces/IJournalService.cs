@@ -9,4 +9,8 @@ public interface IJournalService
     Task<JournalEntryDetailDto> CreateEntryAsync(JournalEntryCreateDto dto, string userId);
     Task<bool> UpdateEntryAsync(int id, JournalEntryCreateDto dto, string userId);
     Task<bool> DeleteEntryAsync(int id, string userId);
+Task<JournalEntryDetailDto?> TogglePinAsync(int id, string userId);
+Task<JournalEntryDetailDto?> ToggleFavoriteAsync(int id, string userId);
+
+    
 }

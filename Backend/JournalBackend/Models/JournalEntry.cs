@@ -28,6 +28,8 @@ public class JournalEntry
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsPinned { get; set; } = false;
+    public bool IsFavorite { get; set; } = false;
 
     // Foreign key to User
     [Required]

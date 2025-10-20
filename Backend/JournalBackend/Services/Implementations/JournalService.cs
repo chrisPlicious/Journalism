@@ -26,7 +26,13 @@ public class JournalService : IJournalService
     public async Task<IEnumerable<JournalEntryDto>> GetAllEntriesAsync(string userId)
     {
         var entries = await _journalEntryRepository.GetEntriesByUserIdAsync(userId);
-        return _mapper.Map<IEnumerable<JournalEntryDto>>(entries);
+
+        var sortedEntries = entries
+            .OrderByDescending(e => e.IsPinned)
+            .ThenByDescending(e => e.CreatedAt)
+            .ToList();
+
+        return _mapper.Map<IEnumerable<JournalEntryDto>>(sortedEntries);
     }
 
     public async Task<JournalEntryDetailDto?> GetEntryByIdAsync(int id, string userId)
@@ -73,6 +79,49 @@ public class JournalService : IJournalService
         return true;
     }
 
+    public async Task<JournalEntryDetailDto?> TogglePinAsync(int id, string userId)
+    {
+        var entry = await _journalEntryRepository.GetEntryByIdAndUserIdAsync(id, userId);
+        if (entry == null) return null;
+
+        // if currently NOT pinned → pin
+        if (!entry.IsPinned)
+        {
+            var pinnedCount = await _journalEntryRepository.CountPinnedEntriesAsync(userId);
+            if (pinnedCount >= 3)
+                throw new InvalidOperationException("You can only pin up to 3 journal entries.");
+
+            entry.IsPinned = true;
+        }
+        // otherwise → unpin
+        else
+        {
+            entry.IsPinned = false;
+        }
+
+        entry.UpdatedAt = DateTime.UtcNow;
+        _journalEntryRepository.Update(entry);
+        await _journalEntryRepository.SaveChangesAsync();
+
+        return _mapper.Map<JournalEntryDetailDto>(entry);
+    }
+
+    public async Task<JournalEntryDetailDto?> ToggleFavoriteAsync(int id, string userId)
+    {
+        var entry = await _journalEntryRepository.GetEntryByIdAndUserIdAsync(id, userId);
+        if (entry == null) return null;
+
+        // Toggle favorite
+        entry.IsFavorite = !entry.IsFavorite;
+        entry.UpdatedAt = DateTime.UtcNow;
+
+        _journalEntryRepository.Update(entry);
+        await _journalEntryRepository.SaveChangesAsync();
+
+        return _mapper.Map<JournalEntryDetailDto>(entry);
+    }
+
+
     public async Task<bool> DeleteEntryAsync(int id, string userId)
     {
         var entry = await _journalEntryRepository.GetEntryByIdAndUserIdAsync(id, userId);
@@ -83,4 +132,6 @@ public class JournalService : IJournalService
         await _journalEntryRepository.SaveChangesAsync();
         return true;
     }
+
+
 }

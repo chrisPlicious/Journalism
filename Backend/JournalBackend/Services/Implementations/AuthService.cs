@@ -138,11 +138,16 @@ public class AuthService : IAuthService
     // Google Sign-In: verify ID token, upsert/link user, and return JWT
     public async Task<AuthResponseDto> GoogleSignInAsync(string idToken)
     {
+        Console.WriteLine($"[DEBUG] GoogleSignInAsync called with idToken length: {idToken?.Length ?? 0}");
+
         var clientId = _configuration["Google:ClientId"];
         if (string.IsNullOrWhiteSpace(clientId))
         {
+            Console.WriteLine("[DEBUG] Google ClientId not configured.");
             return new AuthResponseDto { Message = "Google ClientId not configured." };
         }
+
+        Console.WriteLine($"[DEBUG] Using Google ClientId: {clientId}");
 
         GoogleJsonWebSignature.Payload payload;
         try
@@ -151,10 +156,13 @@ public class AuthService : IAuthService
             {
                 Audience = new[] { clientId }
             };
+            Console.WriteLine("[DEBUG] Validating Google ID token...");
             payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+            Console.WriteLine($"[DEBUG] Token validation successful. Subject: {payload.Subject}, Email: {payload.Email}");
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"[DEBUG] Token validation failed: {ex.Message}");
             return new AuthResponseDto { Message = "Invalid Google ID token." };
         }
 
@@ -163,15 +171,21 @@ public class AuthService : IAuthService
         var name = payload.Name ?? string.Empty;
         var picture = payload.Picture;
 
+        Console.WriteLine($"[DEBUG] Extracted from token - Sub: {sub}, Email: {email}, Name: {name}, Picture: {picture}");
+
         // 1) Prefer lookup by GoogleSubjectId
+        Console.WriteLine("[DEBUG] Looking up user by GoogleSubjectId...");
         var user = await _userRepository.GetUserByGoogleSubjectIdAsync(sub);
+        Console.WriteLine($"[DEBUG] User found by GoogleSubjectId: {user != null}");
 
         // 2) If not found, link by matching email
         if (user == null && !string.IsNullOrEmpty(email))
         {
+            Console.WriteLine("[DEBUG] User not found by GoogleSubjectId, trying email lookup...");
             user = await _userRepository.GetUserByEmailAsync(email);
             if (user != null)
             {
+                Console.WriteLine("[DEBUG] User found by email, linking GoogleSubjectId...");
                 user.GoogleSubjectId = sub;
                 user.EmailConfirmed = true;
                 if (!string.IsNullOrEmpty(picture))
@@ -180,12 +194,18 @@ public class AuthService : IAuthService
                 }
                 _userRepository.Update(user);
                 await _userRepository.SaveChangesAsync();
+                Console.WriteLine("[DEBUG] User linked successfully.");
+            }
+            else
+            {
+                Console.WriteLine("[DEBUG] User not found by email.");
             }
         }
 
         // 3) If still not found, create a new user
         if (user == null)
         {
+            Console.WriteLine("[DEBUG] Creating new user...");
             // Parse first/last name from full name
             var firstName = name;
             var lastName = string.Empty;
@@ -201,6 +221,7 @@ public class AuthService : IAuthService
                 ? email.Split('@')[0]
                 : (firstName + lastName).Trim();
             if (string.IsNullOrWhiteSpace(baseUsername)) baseUsername = "user";
+            Console.WriteLine($"[DEBUG] Generating unique username from base: {baseUsername}");
             var uniqueUsername = await _userRepository.GenerateUniqueUsernameAsync(baseUsername);
 
             user = new User
@@ -217,9 +238,13 @@ public class AuthService : IAuthService
 
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
+            Console.WriteLine($"[DEBUG] New user created with ID: {user.Id}, Username: {user.UserName}");
         }
 
+        Console.WriteLine($"[DEBUG] Generating JWT token for user: {user.UserName}");
         var token = GenerateJwtToken(user);
+        Console.WriteLine($"[DEBUG] JWT token generated successfully. Returning response.");
+
         return new AuthResponseDto
         {
             Token = token,
@@ -228,9 +253,9 @@ public class AuthService : IAuthService
             Email = user.Email ?? string.Empty,
             AvatarUrl = user.AvatarUrl,
             IsProfileComplete = user.IsProfileComplete
-            
+
         };
-            
+
     }
 
 }

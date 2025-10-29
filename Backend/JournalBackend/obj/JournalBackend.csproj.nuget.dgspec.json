@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {}
+    "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {
+    "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
+        "projectUniqueName": "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
         "projectName": "JournalBackend",
-        "projectPath": "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
+        "projectPath": "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
         "packagesPath": "C:\\Users\\TRAINEE-MATUGUINA\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\obj\\",
+        "outputPath": "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

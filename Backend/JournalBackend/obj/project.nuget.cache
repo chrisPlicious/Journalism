@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/rvwiIeJ5lo=",
+  "dgSpecHash": "3nfs3IUZLBY=",
   "success": true,
-  "projectFilePath": "C:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
+  "projectFilePath": "c:\\Users\\TRAINEE-MATUGUINA\\Documents\\JournalProject\\Journalism\\Backend\\JournalBackend\\JournalBackend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\TRAINEE-MATUGUINA\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\TRAINEE-MATUGUINA\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

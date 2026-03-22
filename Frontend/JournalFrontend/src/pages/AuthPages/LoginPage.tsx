@@ -1,21 +1,10 @@
 import GoogleSignInButton from "@/components/Auth/GoogleSignInButton";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { cn } from "@/lib/utils"; // utility for conditional classes
-// import { getProfile } from "../../services/api";
+import { loginUser } from "../../services/api";
+import axios from "axios";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -58,140 +47,173 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        login(data.token, data.username, data.email, data.avatarUrl, data.isProfileComplete);
-        navigate("/home");
-      } else if (response.status === 401) {
-        // Wrong credentials
+      const data = await loginUser(formData);
+      login(data.token, data.username, data.email, data.avatarUrl, data.isProfileComplete);
+      navigate("/home");
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
         setErrors((prev) => ({
           ...prev,
           general: "Username or password is incorrect",
         }));
+      } else if (axios.isAxiosError(err) && err.response?.data?.message) {
+        setErrors((prev) => ({
+          ...prev,
+          general: err.response!.data.message,
+        }));
       } else {
         setErrors((prev) => ({
           ...prev,
-          general: data.message || "Login failed. Try again.",
+          general: "Network error. Please try again later.",
         }));
       }
-    } catch (err) {
-      setErrors((prev) => ({
-        ...prev,
-        general: "Network error. Please try again later.",
-      }));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <Card className="w-full max-w-sm scale-150">
-        <CardHeader>
-          <div className="flex justify-center mb-2">
-            <img
-              src="/MindNestLogoDark.png"
-              alt="MindNest Logo"
-              className="h-20 w-auto"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--background)] to-[#F0F5F1] dark:from-[#0F1A14] dark:to-[#0A120D]">
+      {/* Subtle sage radial overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(124,152,133,0.08),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(124,152,133,0.04),transparent_70%)] pointer-events-none" />
+
+      <div className="relative max-w-[440px] w-full mx-auto bg-[var(--background)] border border-[var(--border)] rounded-[20px] shadow-lg p-8">
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <img
+            src="/MindNestLogoLight.png"
+            alt="MindNest Logo"
+            className="h-12 w-auto dark:hidden"
+          />
+          <img
+            src="/MindNestLogoDark.png"
+            alt="MindNest Logo"
+            className="h-12 w-auto hidden dark:block"
+          />
+        </div>
+
+        {/* Heading */}
+        <h1 className="font-serif text-2xl font-semibold text-center text-[var(--foreground)]">
+          Welcome back
+        </h1>
+
+        {/* Description */}
+        <p className="text-sm text-[var(--muted-foreground)] text-center mb-6">
+          Sign in to continue your journal
+        </p>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email / Username */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="loginIdentifier"
+              className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+            >
+              Email or Username
+            </label>
+            <input
+              id="loginIdentifier"
+              type="text"
+              value={formData.loginIdentifier}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  loginIdentifier: e.target.value,
+                })
+              }
+              className={`w-full bg-[var(--input)] border rounded-[10px] py-2.5 px-3.5 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)] outline-none transition-colors ${
+                errors.loginIdentifier
+                  ? "border-[var(--destructive)]"
+                  : "border-[var(--border)]"
+              }`}
+              required
+              disabled={loading}
             />
+            {errors.loginIdentifier && (
+              <p className="text-sm text-[var(--destructive)]">
+                {errors.loginIdentifier}
+              </p>
+            )}
           </div>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your email or username and password to login
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-6">
-              {/* Email / Username */}
-              <div className="grid gap-2">
-                <Label htmlFor="loginIdentifier">Email or Username</Label>
-                <Input
-                  id="loginIdentifier"
-                  value={formData.loginIdentifier}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      loginIdentifier: e.target.value,
-                    })
-                  }
-                  className={cn(
-                    errors.loginIdentifier
-                      ? "border-red-500 focus:ring-red-500"
-                      : ""
-                  )}
-                  required
-                  disabled={loading}
-                />
-                {errors.loginIdentifier && (
-                  <p className="text-red-500 text-sm">
-                    {errors.loginIdentifier}
-                  </p>
-                )}
-              </div>
 
-              {/* Password */}
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  className={cn(
-                    errors.password ? "border-red-500 focus:ring-red-500" : ""
-                  )}
-                  required
-                  disabled={loading}
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-sm">{errors.password}</p>
-                )}
-              </div>
+          {/* Password */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="password"
+              className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              className={`w-full bg-[var(--input)] border rounded-[10px] py-2.5 px-3.5 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)] outline-none transition-colors ${
+                errors.password
+                  ? "border-[var(--destructive)]"
+                  : "border-[var(--border)]"
+              }`}
+              required
+              disabled={loading}
+            />
+            {errors.password && (
+              <p className="text-sm text-[var(--destructive)]">
+                {errors.password}
+              </p>
+            )}
+          </div>
 
-              {/* General error (wrong credentials, server issues, etc.) */}
-              {errors.general && (
-                <p className="text-red-500">{errors.general}</p>
-              )}
+          {/* General error banner */}
+          {errors.general && (
+            <div className="bg-destructive/10 border-l-4 border-[var(--destructive)] rounded-r-lg p-3">
+              <p className="text-sm text-[var(--destructive)]">
+                {errors.general}
+              </p>
             </div>
-          </form>
-        </CardContent>
-        <CardFooter className="flex-col gap-2">
-          <Button
+          )}
+
+          {/* Submit button */}
+          <button
             type="submit"
-            onClick={handleSubmit}
-            className="w-full"
             disabled={loading}
+            className="w-full bg-[var(--primary)] text-white hover:bg-[var(--sage-500)] rounded-[10px] py-2.5 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Logging in..." : "Login"}
-          </Button>
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
 
-          <div className="w-full flex items-center mt-2">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="px-2 text-xs text-gray-500">or</span>
-            <div className="flex-1 h-px bg-gray-200" />
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-[var(--border)]" />
           </div>
-
-          <div className="w-full flex justify-center mt-2">
-            <GoogleSignInButton />
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-[var(--background)] px-2 text-[var(--muted-foreground)]">
+              or
+            </span>
           </div>
+        </div>
 
-          <Button variant="link">
-            <Link to="/signup">No account? Sign up</Link>
-          </Button>
-        </CardFooter>
-      </Card>
+        {/* Google OAuth */}
+        <div className="w-full flex justify-center">
+          <GoogleSignInButton />
+        </div>
+
+        {/* Switch link */}
+        <p className="text-sm text-center mt-4 text-[var(--foreground)]">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="text-[var(--primary)] hover:underline"
+          >
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

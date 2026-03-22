@@ -1,28 +1,8 @@
 import GoogleSignInButton from "@/components/Auth/GoogleSignInButton";
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import {
-  Card,
-  // CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"; // Assuming shadcn/ui Select is available
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -50,12 +30,8 @@ export default function SignupPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,7 +74,6 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
-        // Adjust backend URL
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -114,9 +89,8 @@ export default function SignupPage() {
       });
       const data = await response.json();
       if (response.ok) {
-        // On success, navigate to login or auto-login if token is returned
         login(data.token, data.username, data.email, data.avatarUrl, data.isProfileComplete);
-        navigate("/avatar"); // Or use login(data.token) if backend returns token on register
+        navigate("/avatar");
       } else {
         setError(data.message || "Signup failed");
       }
@@ -127,195 +101,294 @@ export default function SignupPage() {
     }
   };
 
+  const inputClasses = (hasError: boolean) =>
+    `w-full bg-[var(--input)] border rounded-[10px] py-2.5 px-3.5 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)] outline-none transition-colors ${
+      hasError ? "border-[var(--destructive)]" : "border-[var(--border)]"
+    }`;
+
   return (
-    <div className="flex justify-center items-center h-screen">
-      <Card className="w-full max-w-md scale-125">
-        {" "}
-        {/* Increased width for more fields */}
-        <div className="flex justify-center mb-2">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[var(--background)] to-[#F0F5F1] dark:from-[#0F1A14] dark:to-[#0A120D]">
+      {/* Subtle sage radial overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(124,152,133,0.08),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(124,152,133,0.04),transparent_70%)] pointer-events-none" />
+
+      <div className="relative max-w-[480px] w-full mx-auto bg-[var(--background)] border border-[var(--border)] rounded-[20px] shadow-lg p-8 my-8">
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <img
+            src="/MindNestLogoLight.png"
+            alt="MindNest Logo"
+            className="h-12 w-auto dark:hidden"
+          />
           <img
             src="/MindNestLogoDark.png"
             alt="MindNest Logo"
-            className="h-20 w-auto"
+            className="h-12 w-auto hidden dark:block"
           />
         </div>
-        <CardHeader>
-          <CardTitle>Sign up now</CardTitle>
-          <CardDescription>Create your account to get started</CardDescription>
-          {/* <CardAction>
-            
-          </CardAction> */}
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className={fieldErrors.firstName ? "border-red-500" : ""}
-                    required
-                  />
-                  {fieldErrors.firstName && (
-                    <p className="text-red-500 text-sm">
-                      {fieldErrors.firstName}
-                    </p>
-                  )}
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className={fieldErrors.lastName ? "border-red-500" : ""}
-                    required
-                  />
-                  {fieldErrors.lastName && (
-                    <p className="text-red-500 text-sm">
-                      {fieldErrors.lastName}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="gender">Gender</Label>
-                  <Select
-                    onValueChange={(value) =>
-                      handleSelectChange("gender", value)
-                    }
-                  >
-                    <SelectTrigger
-                      className={fieldErrors.gender ? "border-red-500" : ""}
-                    >
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {fieldErrors.gender && (
-                    <p className="text-red-500 text-sm">{fieldErrors.gender}</p>
-                  )}
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                  <Input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
-                    type="date"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    className={fieldErrors.dateOfBirth ? "border-red-500" : ""}
-                    required
-                  />
-                  {fieldErrors.dateOfBirth && (
-                    <p className="text-red-500 text-sm">
-                      {fieldErrors.dateOfBirth}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={fieldErrors.email ? "border-red-500" : ""}
-                  required
-                />
-                {fieldErrors.email && (
-                  <p className="text-red-500 text-sm">{fieldErrors.email}</p>
-                )}
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className={fieldErrors.username ? "border-red-500" : ""}
-                  required
-                />
-                {fieldErrors.username && (
-                  <p className="text-red-500 text-sm">{fieldErrors.username}</p>
-                )}
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={fieldErrors.password ? "border-red-500" : ""}
-                  required
-                />
-                {fieldErrors.password && (
-                  <p className="text-red-500 text-sm">{fieldErrors.password}</p>
-                )}
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={
-                    fieldErrors.confirmPassword ? "border-red-500" : ""
-                  }
-                  required
-                />
-                {fieldErrors.confirmPassword && (
-                  <p className="text-red-500 text-sm">
-                    {fieldErrors.confirmPassword}
-                  </p>
-                )}
-              </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        {/* Heading */}
+        <h1 className="font-serif text-2xl font-semibold text-center text-[var(--foreground)]">
+          Create your journal
+        </h1>
+
+        {/* Description */}
+        <p className="text-sm text-[var(--muted-foreground)] text-center mb-6">
+          Sign up to start capturing your thoughts
+        </p>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Row 1: First Name + Last Name */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="firstName"
+                className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+              >
+                First Name
+              </label>
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={formData.firstName}
+                onChange={handleChange}
+                className={inputClasses(!!fieldErrors.firstName)}
+                required
+                disabled={loading}
+              />
+              {fieldErrors.firstName && (
+                <p className="text-sm text-[var(--destructive)]">
+                  {fieldErrors.firstName}
+                </p>
+              )}
             </div>
-          </form>
-        </CardContent>
-        <CardFooter className="flex-col gap-2">
-          <Button
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="lastName"
+                className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+              >
+                Last Name
+              </label>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={formData.lastName}
+                onChange={handleChange}
+                className={inputClasses(!!fieldErrors.lastName)}
+                required
+                disabled={loading}
+              />
+              {fieldErrors.lastName && (
+                <p className="text-sm text-[var(--destructive)]">
+                  {fieldErrors.lastName}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Gender + Date of Birth */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="gender"
+                className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+              >
+                Gender
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className={inputClasses(!!fieldErrors.gender)}
+                required
+                disabled={loading}
+              >
+                <option value="" disabled>
+                  Select gender
+                </option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              {fieldErrors.gender && (
+                <p className="text-sm text-[var(--destructive)]">
+                  {fieldErrors.gender}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="dateOfBirth"
+                className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+              >
+                Date of Birth
+              </label>
+              <input
+                id="dateOfBirth"
+                name="dateOfBirth"
+                type="date"
+                value={formData.dateOfBirth}
+                onChange={handleChange}
+                className={inputClasses(!!fieldErrors.dateOfBirth)}
+                required
+                disabled={loading}
+              />
+              {fieldErrors.dateOfBirth && (
+                <p className="text-sm text-[var(--destructive)]">
+                  {fieldErrors.dateOfBirth}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="email"
+              className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={inputClasses(!!fieldErrors.email)}
+              required
+              disabled={loading}
+            />
+            {fieldErrors.email && (
+              <p className="text-sm text-[var(--destructive)]">
+                {fieldErrors.email}
+              </p>
+            )}
+          </div>
+
+          {/* Username */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="username"
+              className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+            >
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              value={formData.username}
+              onChange={handleChange}
+              className={inputClasses(!!fieldErrors.username)}
+              required
+              disabled={loading}
+            />
+            {fieldErrors.username && (
+              <p className="text-sm text-[var(--destructive)]">
+                {fieldErrors.username}
+              </p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="password"
+              className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              className={inputClasses(!!fieldErrors.password)}
+              required
+              disabled={loading}
+            />
+            {fieldErrors.password && (
+              <p className="text-sm text-[var(--destructive)]">
+                {fieldErrors.password}
+              </p>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="confirmPassword"
+              className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]"
+            >
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className={inputClasses(!!fieldErrors.confirmPassword)}
+              required
+              disabled={loading}
+            />
+            {fieldErrors.confirmPassword && (
+              <p className="text-sm text-[var(--destructive)]">
+                {fieldErrors.confirmPassword}
+              </p>
+            )}
+          </div>
+
+          {/* General error banner */}
+          {error && (
+            <div className="bg-destructive/10 border-l-4 border-[var(--destructive)] rounded-r-lg p-3">
+              <p className="text-sm text-[var(--destructive)]">{error}</p>
+            </div>
+          )}
+
+          {/* Submit button */}
+          <button
             type="submit"
-            onClick={handleSubmit}
-            className="w-full"
             disabled={loading}
+            className="w-full bg-[var(--primary)] text-white hover:bg-[var(--sage-500)] rounded-[10px] py-2.5 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Signing up..." : "Sign Up"}
-          </Button>
+          </button>
+        </form>
 
-          <div className="w-full flex items-center mt-2">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="px-2 text-xs text-gray-500">or</span>
-            <div className="flex-1 h-px bg-gray-200" />
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-[var(--border)]" />
           </div>
-
-          <div className="w-full flex justify-center mt-2">
-            <GoogleSignInButton text="signup_with" />
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-[var(--background)] px-2 text-[var(--muted-foreground)]">
+              or
+            </span>
           </div>
+        </div>
 
-          <Button variant="link" onClick={() => navigate("/login")}>
-            Already have an account? Login
-          </Button>
-        </CardFooter>
-      </Card>
+        {/* Google OAuth */}
+        <div className="w-full flex justify-center">
+          <GoogleSignInButton text="signup_with" />
+        </div>
+
+        {/* Switch link */}
+        <p className="text-sm text-center mt-4 text-[var(--foreground)]">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="text-[var(--primary)] hover:underline"
+          >
+            Log in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

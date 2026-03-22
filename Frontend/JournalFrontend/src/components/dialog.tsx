@@ -36,7 +36,7 @@ export function ProfileCompletionDialog({
               onOpenChange(false);
               navigate('/profile');
             }}
-            className="bg-[var(--primary)] text-white hover:opacity-90"
+            className="bg-[var(--primary)] text-white hover:opacity-90 active:scale-[0.98] transition-all"
           >
             Set Up Now
           </Button>

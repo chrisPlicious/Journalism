@@ -49,10 +49,10 @@ export default function SelectAvatar() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-2">
-      <h2 className="text-3xl font-semibold text-white mb-4">
+      <h2 className="text-3xl font-semibold text-[var(--foreground)] mb-4">
         Choose your avatar
       </h2>
-      <Card className="w-96 bg-white/10 backdrop-blur-sm shadow-lg">
+      <Card className="w-96 bg-[var(--card)] backdrop-blur-sm shadow-lg">
         <CardHeader>
           <CardTitle>Avatars</CardTitle>
         </CardHeader>
@@ -66,7 +66,7 @@ export default function SelectAvatar() {
                 }
                 className={`${
                   selected === avatar
-                    ? "border-white transition-all duration-300 scale-110 shadow-lg"
+                    ? "border-[var(--primary)] transition-all duration-300 scale-110 shadow-lg"
                     : ""
                 } border-transparent  transition-all duration-300`}
               >
@@ -82,7 +82,7 @@ export default function SelectAvatar() {
       </Card>
       <Button
         onClick={handleSave}
-        className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 transition-all"
+        className="bg-[var(--primary)] hover:bg-[var(--sage-500)] text-white font-semibold px-6 py-3 rounded-lg mt-6 transition-all active:scale-[0.98]"
       >
         Save Avatar
       </Button>

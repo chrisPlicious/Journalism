@@ -129,7 +129,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Link
                 to="/newentry"
-                className="bg-gradient-to-br from-[var(--primary)] to-[var(--sage-500)] text-white rounded-2xl p-6 min-h-[140px] flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-lg transition-all duration-250"
+                className="bg-gradient-to-br from-[var(--primary)] to-[var(--sage-500)] text-white rounded-2xl p-6 min-h-[140px] flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-lg transition-all duration-250 active:scale-[0.98]"
               >
                 <Feather size={28} />
                 <div>
@@ -144,7 +144,7 @@ export default function HomePage() {
 
               <Link
                 to="/entries"
-                className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 min-h-[140px] flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-lg transition-all duration-250"
+                className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 min-h-[140px] flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-lg transition-all duration-250 active:scale-[0.98]"
               >
                 <BookOpen
                   size={28}

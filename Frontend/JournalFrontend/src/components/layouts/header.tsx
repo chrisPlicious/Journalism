@@ -149,9 +149,9 @@ export default function Header({ onSidebarToggle }: HeaderProps) {
           }
         >
           {theme === "dark" ? (
-            <Sun className="h-5 w-5 text-[var(--muted-foreground)]" />
+            <Sun className="h-5 w-5 text-[var(--muted-foreground)] transition-transform duration-500 rotate-0" />
           ) : (
-            <Moon className="h-5 w-5 text-[var(--muted-foreground)]" />
+            <Moon className="h-5 w-5 text-[var(--muted-foreground)] transition-transform duration-500 rotate-0" />
           )}
         </Button>
 

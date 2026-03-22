@@ -3,7 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import MainLayout from "../components/layouts/main-layout";
 import { updateJournal, getJournalById } from "../services/api";
 import ShadcnTextEditor from "@/components/TextEditor/TextEditor";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const CATEGORIES = [
   {
@@ -121,7 +122,7 @@ export default function EditJournal() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Give your entry a title..."
           className={`w-full bg-transparent border-0 border-b border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-0 font-serif text-3xl font-semibold placeholder:text-[var(--muted-foreground)] pb-3 text-[var(--foreground)] ${
-            error.title ? "border-b-red-500" : ""
+            error.title ? "border-b-[var(--destructive)]" : ""
           }`}
         />
 
@@ -178,7 +179,7 @@ export default function EditJournal() {
             error={error.content}
           />
           {error.content && (
-            <p className="text-red-500 text-sm mt-1">Content is required</p>
+            <p className="text-[var(--destructive)] text-sm mt-1">Content is required</p>
           )}
         </div>
 
@@ -188,7 +189,7 @@ export default function EditJournal() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="bg-[var(--primary)] text-white hover:bg-[var(--sage-500)] rounded-[10px] py-3 font-semibold transition-colors disabled:opacity-50"
+              className="bg-[var(--primary)] text-white hover:bg-[var(--sage-500)] rounded-[10px] py-3 font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>

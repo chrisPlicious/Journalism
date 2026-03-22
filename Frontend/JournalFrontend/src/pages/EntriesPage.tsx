@@ -34,7 +34,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import JournalDialog from "../components/Viewer/EntryView";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Pin, Star, BookOpen, PenLine, Filter, SearchX } from "lucide-react";
 
 const categoryColorMap: Record<string, string> = {
@@ -275,7 +276,7 @@ export default function EntriesPage() {
             </p>
             <Link
               to="/newentry"
-              className="inline-flex items-center gap-2 bg-[var(--primary)] text-white rounded-[10px] py-2.5 px-6 font-semibold mt-6 hover:bg-[var(--sage-500)] transition-colors"
+              className="inline-flex items-center gap-2 bg-[var(--primary)] text-white rounded-[10px] py-2.5 px-6 font-semibold mt-6 hover:bg-[var(--sage-500)] transition-all active:scale-[0.98]"
             >
               <PenLine className="h-5 w-5" />
               Write your first entry

@@ -7,7 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import AvatarPickerDrawer from "@/components/AvatarPickerDrawer";
 import { Pencil, Lock } from "lucide-react";
 import { type UserProfile } from "@/models/user";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const avatars = [
   "/Avatars/BurstFade.jpg",
@@ -309,7 +310,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSaveName}
-                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-opacity"
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
                   >
                     Save
                   </button>
@@ -355,7 +356,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSaveUsername}
-                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-opacity"
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
                   >
                     Save
                   </button>
@@ -417,7 +418,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSaveGender}
-                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-opacity"
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
                   >
                     Save
                   </button>
@@ -463,7 +464,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSaveDateOfBirth}
-                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-opacity"
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
                   >
                     Save
                   </button>

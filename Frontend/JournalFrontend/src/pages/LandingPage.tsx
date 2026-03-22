@@ -90,7 +90,7 @@ export default function LandingPage() {
         {/* CTA Button */}
         <Link
           to="/signup"
-          className="mt-8 inline-block bg-[var(--primary)] text-white hover:bg-[var(--sage-500)] rounded-[10px] py-3 px-8 text-base font-semibold transition-colors"
+          className="mt-8 inline-block bg-[var(--primary)] text-white hover:bg-[var(--sage-500)] rounded-[10px] py-3 px-8 text-base font-semibold transition-all active:scale-[0.98]"
         >
           Start Journaling
         </Link>

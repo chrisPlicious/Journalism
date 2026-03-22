@@ -103,13 +103,13 @@ describe('EntriesPage', () => {
       </MemoryRouter>
     );
 
-    // Updated: the component now shows "No entries yet" for empty journal list
+    // Updated: the redesigned component shows "Your journal awaits" for empty state
     await waitFor(() => {
-      expect(screen.getByText('No entries yet')).toBeInTheDocument();
+      expect(screen.getByText('Your journal awaits')).toBeInTheDocument();
     });
   });
 
-  it('displays the username in the heading', async () => {
+  it('displays the heading', async () => {
     mockGetJournals.mockResolvedValue([]);
 
     render(
@@ -118,8 +118,9 @@ describe('EntriesPage', () => {
       </MemoryRouter>
     );
 
+    // Updated: the redesigned component uses a generic heading without username
     await waitFor(() => {
-      expect(screen.getByText("TestUser's Journal Entries")).toBeInTheDocument();
+      expect(screen.getByText('Journal Entries')).toBeInTheDocument();
     });
   });
 });

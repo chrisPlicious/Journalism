@@ -6,6 +6,7 @@ import { ProfileCompletionDialog } from "@/components/dialog";
 import MainLayout from "@/components/layouts/main-layout";
 import { getJournals } from "@/services/api";
 import type { JournalEntryDto } from "@/models/journal";
+import { categoryColorMap } from "@/lib/categories";
 
 const prompts = [
   "What is one thing that brought you unexpected joy this week?",
@@ -40,17 +41,6 @@ const prompts = [
   "Describe a conversation that stayed with you.",
   "What are you learning to let go of?",
 ];
-
-const categoryColorMap: Record<string, string> = {
-  personal: "var(--category-personal)",
-  Personal: "var(--category-personal)",
-  work: "var(--category-work)",
-  Work: "var(--category-work)",
-  study: "var(--category-study)",
-  Study: "var(--category-study)",
-  travel: "var(--category-travel)",
-  Travel: "var(--category-travel)",
-};
 
 function getGreeting(username: string | null): string {
   const hour = new Date().getHours();

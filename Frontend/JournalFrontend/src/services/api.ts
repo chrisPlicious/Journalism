@@ -52,6 +52,21 @@ export const loginUser = async (formData: {
   return res.data;
 };
 
+// Auth — register
+export const registerUser = async (formData: {
+  FirstName: string;
+  LastName: string;
+  Gender: string;
+  DateOfBirth: string;
+  Email: string;
+  Username: string;
+  Password: string;
+  ConfirmPassword: string;
+}) => {
+  const res = await api.post("/auth/register", formData);
+  return res.data;
+};
+
 // Auth — Google Sign-In
 export const googleLogin = async (idToken: string) => {
   const res = await api.post("/auth/google", { idToken });

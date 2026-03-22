@@ -37,21 +37,7 @@ import JournalDialog from "../components/Viewer/EntryView";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Pin, Star, BookOpen, PenLine, Filter, SearchX } from "lucide-react";
-
-const categoryColorMap: Record<string, string> = {
-  personal: "var(--category-personal)",
-  Personal: "var(--category-personal)",
-  work: "var(--category-work)",
-  Work: "var(--category-work)",
-  study: "var(--category-study)",
-  Study: "var(--category-study)",
-  travel: "var(--category-travel)",
-  Travel: "var(--category-travel)",
-};
-
-function getCategoryColor(category: string): string {
-  return categoryColorMap[category] || "var(--border)";
-}
+import { getCategoryColor } from "@/lib/categories";
 
 function getCategoryChipStyle(category: string): React.CSSProperties {
   const color = getCategoryColor(category);
@@ -85,7 +71,6 @@ export default function EntriesPage() {
   useEffect(() => {
     getJournals()
       .then((data) => {
-        console.log("Fetched journals:", data);
         setJournals(data);
       })
       .catch((err) => console.error("Failed to load Journal", err))

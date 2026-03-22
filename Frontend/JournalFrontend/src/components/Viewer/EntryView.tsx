@@ -10,29 +10,7 @@ import {
 import type { JournalEntryDetailDto } from "../../models/journal";
 import { Link } from "react-router-dom";
 import { Pencil, Star } from "lucide-react";
-
-const categoryColorMap: Record<string, string> = {
-  personal: "var(--category-personal)",
-  Personal: "var(--category-personal)",
-  work: "var(--category-work)",
-  Work: "var(--category-work)",
-  study: "var(--category-study)",
-  Study: "var(--category-study)",
-  travel: "var(--category-travel)",
-  Travel: "var(--category-travel)",
-};
-
-function getCategoryColor(category: string): string {
-  return categoryColorMap[category] || "var(--border)";
-}
-
-function getCategoryChipStyle(category: string): React.CSSProperties {
-  const color = getCategoryColor(category);
-  return {
-    backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
-    color: color,
-  };
-}
+import { getCategoryChipStyle } from "@/lib/categories";
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);

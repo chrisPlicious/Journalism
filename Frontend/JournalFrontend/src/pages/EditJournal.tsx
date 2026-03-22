@@ -1,41 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainLayout from "../components/layouts/main-layout";
+import { useTheme } from "../context/themeContext";
 import { updateJournal, getJournalById } from "../services/api";
 import ShadcnTextEditor from "@/components/TextEditor/TextEditor";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-
-const CATEGORIES = [
-  {
-    value: "personal",
-    label: "Personal",
-    bg: "rgba(184,169,212,0.15)",
-    color: "#B8A9D4",
-    darkColor: "#8B7AB3",
-  },
-  {
-    value: "work",
-    label: "Work",
-    bg: "rgba(169,196,212,0.15)",
-    color: "#A9C4D4",
-    darkColor: "#7AA3B8",
-  },
-  {
-    value: "study",
-    label: "Study",
-    bg: "rgba(212,201,169,0.15)",
-    color: "#D4C9A9",
-    darkColor: "#B8AD7A",
-  },
-  {
-    value: "travel",
-    label: "Travel",
-    bg: "rgba(169,212,184,0.15)",
-    color: "#A9D4B8",
-    darkColor: "#7AB88B",
-  },
-];
+import { CATEGORIES } from "@/lib/categories";
 
 export default function EditJournal() {
   const [title, setTitle] = useState("");
@@ -104,7 +75,8 @@ export default function EditJournal() {
     }
   };
 
-  const isDark = document.documentElement.classList.contains("dark");
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <MainLayout>

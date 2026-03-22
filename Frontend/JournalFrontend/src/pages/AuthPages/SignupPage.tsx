@@ -3,6 +3,7 @@ import GoogleSignInButton from "@/components/Auth/GoogleSignInButton";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { registerUser } from "../../services/api";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -73,29 +74,20 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          FirstName: formData.firstName,
-          LastName: formData.lastName,
-          Gender: formData.gender,
-          DateOfBirth: formData.dateOfBirth,
-          Email: formData.email,
-          Username: formData.username,
-          Password: formData.password,
-          ConfirmPassword: formData.confirmPassword,
-        }),
+      const data = await registerUser({
+        FirstName: formData.firstName,
+        LastName: formData.lastName,
+        Gender: formData.gender,
+        DateOfBirth: formData.dateOfBirth,
+        Email: formData.email,
+        Username: formData.username,
+        Password: formData.password,
+        ConfirmPassword: formData.confirmPassword,
       });
-      const data = await response.json();
-      if (response.ok) {
-        login(data.token, data.username, data.email, data.avatarUrl, data.isProfileComplete);
-        navigate("/avatar");
-      } else {
-        setError(data.message || "Signup failed");
-      }
-    } catch (err) {
-      setError("Network error");
+      login(data.token, data.username, data.email, data.avatarUrl, data.isProfileComplete);
+      navigate("/avatar");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Signup failed");
     } finally {
       setLoading(false);
     }

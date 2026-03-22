@@ -26,7 +26,7 @@ const avatars = [
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { updateAvatar, updateUsername, setProfileComplete } = useAuth();
   const [isEditingDateOfBirth, setIsEditingDateOfBirth] = useState(false);
   const [tempDateOfBirth, setTempDateOfBirth] = useState("");
@@ -44,6 +44,7 @@ export default function ProfilePage() {
         const data = await getProfile();
         setProfile(data);
       } catch (err: any) {
+        setError(err.message || "Failed to load profile");
         toast.error(err.message || "Failed to load profile");
       } finally {
         setLoading(false);

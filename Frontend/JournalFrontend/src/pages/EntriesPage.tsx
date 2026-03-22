@@ -427,6 +427,20 @@ export default function EntriesPage() {
           entry={detail}
           open={open}
           onOpenChange={(o) => handleOpen(o)}
+          isFavorite={
+            detail
+              ? journals.find((j) => j.id === detail.id)?.isFavorite ?? false
+              : false
+          }
+          onToggleFavorite={() => {
+            if (detail) handleFavorite(detail.id);
+          }}
+          onDelete={() => {
+            if (detail) {
+              setOpen(false);
+              setDeleteTarget(detail.id);
+            }
+          }}
         />
 
         {/* Delete confirmation dialog */}

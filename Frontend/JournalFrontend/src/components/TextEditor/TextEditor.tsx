@@ -2,10 +2,6 @@
 
 import type React from "react";
 import { useRef, useState, useEffect, forwardRef } from "react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "../ui/button-group";
 import { Bold, Italic, Underline, Undo2, Redo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +15,7 @@ interface TextEditorProps {
 }
 
 const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
-  ({ value = "", onChange, placeholder, className, disabled, error }, ref) => {
+  ({ value = "", onChange, placeholder = "Start writing...", className, disabled, error }, ref) => {
     const editorRef = useRef<HTMLDivElement | null>(null);
 
     // history & redo stacks
@@ -65,17 +61,17 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
       onChange?.(content);
     }
 
-    function onToggleChange(newVal: string[] | null) {
-      const newActive = newVal ?? [];
-      const added = newActive.filter((x) => !active.includes(x));
-
-      added.forEach((k) => {
-        if (k === "bold") applyCommand("bold");
-        if (k === "italic") applyCommand("italic");
-        if (k === "underline") applyCommand("underline");
+    function toggleFormat(format: string) {
+      applyCommand(format);
+      // Update active state based on queryCommandState
+      setActive((prev) => {
+        const isActive = document.queryCommandState(format);
+        if (isActive) {
+          return prev.includes(format) ? prev : [...prev, format];
+        } else {
+          return prev.filter((x) => x !== format);
+        }
       });
-
-      setActive(newActive);
     }
 
     const handleInput = () => {
@@ -92,14 +88,6 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
       const text = e.clipboardData.getData("text/plain");
       document.execCommand("insertText", false, text);
       handleInput();
-    };
-
-    const handleClear = () => {
-      if (!editorRef.current) return;
-      pushToHistory(editorRef.current.innerHTML);
-      editorRef.current.innerHTML = "";
-      setActive([]);
-      onChange?.("");
     };
 
     const handleUndo = () => {
@@ -155,84 +143,82 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
       };
     }, []);
 
+    const isFormatActive = (format: string) => {
+      try {
+        return document.queryCommandState(format);
+      } catch {
+        return active.includes(format);
+      }
+    };
+
     return (
-      <Card className={cn("w-full bg-zinc-50 dark:bg-zinc-700", className)}>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2">
-            <ToggleGroup
-              type="multiple"
-              variant={"outline"}
-              className="inline-flex p-1"
-              value={active}
-              onValueChange={onToggleChange}
-              aria-label="text formatting"
-              disabled={disabled}
-            >
-              <ToggleGroupItem
-                value="bold"
-                aria-label="bold"
-                disabled={disabled}
-                className="inline-flex items-center justify-center px-3 py-2 rounded-md 
-               hover:bg-muted/60 disabled:opacity-50
-               data-[state=on]:bg-black data-[state=on]:text-white"
-              >
-                <Bold className="w-4 h-4" />
-              </ToggleGroupItem>
+      <div className={cn("w-full", className)}>
+        {/* Toolbar */}
+        <div className="flex items-center gap-1 mb-3">
+          {/* Bold / Italic / Underline group */}
+          <button
+            type="button"
+            onClick={() => toggleFormat("bold")}
+            disabled={disabled}
+            aria-label="Bold"
+            className={cn(
+              "inline-flex items-center justify-center bg-transparent text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded-lg p-2 transition-colors disabled:opacity-50",
+              isFormatActive("bold") && "bg-[var(--sage-100)] text-[var(--sage-700)]"
+            )}
+          >
+            <Bold className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleFormat("italic")}
+            disabled={disabled}
+            aria-label="Italic"
+            className={cn(
+              "inline-flex items-center justify-center bg-transparent text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded-lg p-2 transition-colors disabled:opacity-50",
+              isFormatActive("italic") && "bg-[var(--sage-100)] text-[var(--sage-700)]"
+            )}
+          >
+            <Italic className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleFormat("underline")}
+            disabled={disabled}
+            aria-label="Underline"
+            className={cn(
+              "inline-flex items-center justify-center bg-transparent text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded-lg p-2 transition-colors disabled:opacity-50",
+              isFormatActive("underline") && "bg-[var(--sage-100)] text-[var(--sage-700)]"
+            )}
+          >
+            <Underline className="h-[18px] w-[18px]" />
+          </button>
 
-              <ToggleGroupItem
-                value="italic"
-                aria-label="italic"
-                disabled={disabled}
-                className="inline-flex items-center justify-center px-3 py-2 rounded-md 
-               hover:bg-muted/60 disabled:opacity-50
-               data-[state=on]:bg-black data-[state=on]:text-white"
-              >
-                <Italic className="w-4 h-4" />
-              </ToggleGroupItem>
+          {/* Separator */}
+          <div className="border-r border-[var(--border)] mx-1 h-6" />
 
-              <ToggleGroupItem
-                value="underline"
-                aria-label="underline"
-                disabled={disabled}
-                className="inline-flex items-center justify-center px-3 py-2 rounded-md 
-               hover:bg-muted/60 disabled:opacity-50
-               data-[state=on]:bg-black data-[state=on]:text-white"
-              >
-                <Underline className="w-4 h-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
+          {/* Undo / Redo group */}
+          <button
+            type="button"
+            onClick={handleUndo}
+            disabled={history.length === 0 || disabled}
+            aria-label="Undo (Ctrl/Cmd+Z)"
+            className="inline-flex items-center justify-center bg-transparent text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded-lg p-2 transition-colors disabled:opacity-50"
+          >
+            <Undo2 className="h-[18px] w-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={handleRedo}
+            disabled={future.length === 0 || disabled}
+            aria-label="Redo (Ctrl/Cmd+Y / Ctrl/Cmd+Shift+Z)"
+            className="inline-flex items-center justify-center bg-transparent text-[var(--muted-foreground)] hover:bg-[var(--muted)] rounded-lg p-2 transition-colors disabled:opacity-50"
+          >
+            <Redo2 className="h-[18px] w-[18px]" />
+          </button>
+        </div>
 
-            <ButtonGroup>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleUndo}
-                disabled={history.length === 0 || disabled}
-                aria-label="Undo (Ctrl/Cmd+Z)"
-              >
-                <Undo2 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRedo}
-                disabled={future.length === 0 || disabled}
-                aria-label="Redo (Ctrl/Cmd+Y / Ctrl/Cmd+Shift+Z)"
-              >
-                <Redo2 className="w-4 h-4" />
-              </Button>
-            </ButtonGroup>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleClear}
-              disabled={disabled}
-            >
-              Clear
-            </Button>
-          </div>
-
+        {/* Editor area */}
+        <div className="relative">
           <div
             ref={(node) => {
               if (listenersRef.current?.el && listenersRef.current.el !== node) {
@@ -283,15 +269,14 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
                 listenersRef.current = {
                   el: node,
                   beforeInput,
-                  // keydown,
+                  keydown,
                 };
               }
             }}
-            
             contentEditable={!disabled}
             className={cn(
-              "min-h-[300px] w-full rounded-md border p-3 focus:outline-none focus:ring-2 focus:ring-ring",
-              error && "border-destructive focus:ring-destructive",
+              "min-h-[400px] w-full p-6 border border-[var(--border)] rounded-xl bg-[var(--background)] text-[17px] font-normal leading-[1.7] focus:outline-none focus-within:ring-2 focus-within:ring-[var(--ring)] focus:border-[var(--primary)] transition-colors",
+              error && "border-destructive focus-within:ring-destructive",
               disabled && "opacity-50 cursor-not-allowed bg-muted"
             )}
             onInput={handleInput}
@@ -307,17 +292,17 @@ const TextEditor = forwardRef<HTMLDivElement, TextEditorProps>(
 
           {placeholder && !value && (
             <div
-              className="absolute pointer-events-none text-muted-foreground"
+              className="absolute pointer-events-none text-[var(--muted-foreground)] italic text-[17px] leading-[1.7]"
               style={{
-                top: "4.75rem",
-                left: "1.75rem",
+                top: "1.5rem",
+                left: "1.5rem",
               }}
             >
               {placeholder}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 );

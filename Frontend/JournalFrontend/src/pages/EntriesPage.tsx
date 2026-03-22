@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { useLocation, useSearchParams, Link } from "react-router-dom";
 import {
   getJournals,
   deleteJournal,
   getJournalById,
   journalFavorite,
   journalPin,
-} from "../services/api"; // Use your API
-import type { JournalEntryDto, JournalEntryDetailDto } from "../models/journal"; // Use your types
+} from "../services/api";
+import type { JournalEntryDto, JournalEntryDetailDto } from "../models/journal";
 import { useAuth } from "../context/AuthContext";
-import { Button } from "@/components/ui/button";
 import MainLayout from "../components/layouts/main-layout";
 import {
   Select,
@@ -22,14 +20,54 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-import JournalDialog from "../components/Viewer/EntryView"; // Use customized dialog
-import { Separator } from "@/components/ui/separator";
+import JournalDialog from "../components/Viewer/EntryView";
 import { toast, Toaster } from "sonner";
-import { Pin, Star } from "lucide-react";
+import { Pin, Star, BookOpen, PenLine, Filter, SearchX } from "lucide-react";
+
+const categoryColorMap: Record<string, string> = {
+  personal: "var(--category-personal)",
+  Personal: "var(--category-personal)",
+  work: "var(--category-work)",
+  Work: "var(--category-work)",
+  study: "var(--category-study)",
+  Study: "var(--category-study)",
+  travel: "var(--category-travel)",
+  Travel: "var(--category-travel)",
+};
+
+function getCategoryColor(category: string): string {
+  return categoryColorMap[category] || "var(--border)";
+}
+
+function getCategoryChipStyle(category: string): React.CSSProperties {
+  const color = getCategoryColor(category);
+  return {
+    backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
+    color: color,
+  };
+}
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 export default function EntriesPage() {
   const [journals, setJournals] = useState<JournalEntryDto[]>([]);
@@ -38,6 +76,7 @@ export default function EntriesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [detail, setDetail] = useState<JournalEntryDetailDto | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const { username } = useAuth();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,31 +129,25 @@ export default function EntriesPage() {
             .map((j) =>
               j.id === id ? { ...j, isPinned: res.data.isPinned } : j
             )
-            .sort((a, b) => Number(b.isPinned) - Number(a.isPinned)) // reorder pinned first
+            .sort((a, b) => Number(b.isPinned) - Number(a.isPinned))
       );
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to pin entry");
     }
   };
 
-  const handleDelete = (id: number) => {
-    toast("Are you sure you want to delete?", {
-      description: "This action cannot be undone.",
-      duration: 5000, // how long toast stays
-      action: {
-        label: "Yes, Delete",
-        onClick: async () => {
-          try {
-            await deleteJournal(id);
-            setJournals((prev) => prev.filter((journal) => journal.id !== id));
-            toast.success("Journal entry deleted successfully ✅");
-          } catch (err) {
-            console.error("Failed to delete journal entry", err);
-            toast.error("Failed to delete journal entry ❌");
-          }
-        },
-      },
-    });
+  const handleDeleteConfirm = async () => {
+    if (deleteTarget === null) return;
+    try {
+      await deleteJournal(deleteTarget);
+      setJournals((prev) => prev.filter((journal) => journal.id !== deleteTarget));
+      toast.success("Journal entry deleted successfully");
+    } catch (err) {
+      console.error("Failed to delete journal entry", err);
+      toast.error("Failed to delete journal entry");
+    } finally {
+      setDeleteTarget(null);
+    }
   };
 
   const handleOpen = async (isOpen: boolean, id?: number) => {
@@ -129,6 +162,14 @@ export default function EntriesPage() {
     } else {
       setDetail(null);
     }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    const sp = new URLSearchParams(searchParams);
+    sp.delete("q");
+    sp.delete("search");
+    setSearchParams(sp, { replace: true });
   };
 
   const qText = searchQuery.trim().toLowerCase();
@@ -154,30 +195,59 @@ export default function EntriesPage() {
     return matchesText;
   });
 
+  // Skeleton loading state
   if (loading) {
     return (
       <MainLayout>
-        <p className="text-center mt-10">Loading...</p>
+        <div className="px-4 md:px-8 lg:px-12 py-6 md:py-10 flex-1">
+          {/* Header skeleton */}
+          <div>
+            <div className="h-10 w-64 bg-[var(--muted)] rounded-lg animate-pulse" />
+            <div className="h-4 w-24 bg-[var(--muted)] rounded mt-2 animate-pulse" />
+          </div>
+          {/* Filter skeleton */}
+          <div className="mt-6 mb-8">
+            <div className="h-10 w-44 bg-[var(--muted)] rounded-full animate-pulse" />
+          </div>
+          {/* Card grid skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-[var(--muted)] rounded-2xl h-[200px] animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
       </MainLayout>
     );
   }
 
   return (
     <MainLayout>
-      <div className="px-4 md:px-8 lg:px-12 py-6 md:py-10 flex-1 items-center justify-center">
-        <div className="flex-col gap-5 items-center mb-6">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold">
-            {username}'s Journal Entries
+      <div className="px-4 md:px-8 lg:px-12 py-6 md:py-10 flex-1">
+        {/* Page Header */}
+        <div>
+          <h1 className="font-serif text-3xl md:text-4xl font-semibold text-[var(--foreground)]">
+            Journal Entries
           </h1>
-          <div className="flex gap-4 items-center">
+          <p className="text-sm text-[var(--muted-foreground)] mt-1">
+            {journals.length} {journals.length === 1 ? "entry" : "entries"}
+          </p>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="mt-6 mb-8">
+          <div className="flex flex-wrap items-center gap-3">
             <Select
               value={selectedCategory}
               onValueChange={setSelectedCategory}
             >
               <SelectTrigger
-                className="text-base md:text-lg lg:text-[20px] font-bold bg-black text-white border-white w-full md:w-auto md:min-w-[200px] mt-5"
+                className="rounded-full bg-[var(--muted)] px-4 py-2 text-sm font-medium border-none w-auto min-w-[180px] gap-2"
                 aria-label="Filter journal entries by category"
               >
+                <Filter size={16} className="shrink-0" />
                 <SelectValue placeholder="Filter by Category" />
               </SelectTrigger>
               <SelectContent>
@@ -191,116 +261,202 @@ export default function EntriesPage() {
             </Select>
           </div>
         </div>
-        <Separator className="mb-6 h-[3px] shadow bg-neutral-500" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJournals.length > 0 ? (
-            filteredJournals.map((entry) => (
-              <Card
+
+        {journals.length === 0 ? (
+          /* Empty state — user has zero entries */
+          <div className="flex flex-col items-center justify-center py-20">
+            <BookOpen className="h-12 w-12 text-[var(--sage-300)]" />
+            <h2 className="font-serif text-2xl font-semibold text-[var(--foreground)] mt-6">
+              Your journal awaits
+            </h2>
+            <p className="text-base text-[var(--muted-foreground)] text-center max-w-sm mt-3">
+              This is where your thoughts and reflections will live. Start your
+              first entry to begin your journaling journey.
+            </p>
+            <Link
+              to="/newentry"
+              className="inline-flex items-center gap-2 bg-[var(--primary)] text-white rounded-[10px] py-2.5 px-6 font-semibold mt-6 hover:bg-[var(--sage-500)] transition-colors"
+            >
+              <PenLine className="h-5 w-5" />
+              Write your first entry
+            </Link>
+          </div>
+        ) : filteredJournals.length === 0 ? (
+          /* No search results state */
+          <div className="flex flex-col items-center justify-center py-20">
+            <SearchX className="h-12 w-12 text-[var(--sage-300)]" />
+            <h2 className="font-serif text-2xl font-semibold text-[var(--foreground)] mt-6">
+              No entries found
+            </h2>
+            <p className="text-base text-[var(--muted-foreground)] text-center max-w-sm mt-3">
+              No entries match your search. Try a different term or check your
+              filters.
+            </p>
+            <button
+              onClick={clearSearch}
+              className="text-[var(--primary)] text-sm font-medium mt-6 hover:underline transition-colors"
+            >
+              Clear Search
+            </button>
+          </div>
+        ) : (
+          /* Entry Cards Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredJournals.map((entry) => (
+              <div
                 key={entry.id}
-                className="flex flex-col justify-between border-neutral-800 bg-zinc-800 dark:bg-white transform hover:scale-102 transition-transform duration-500"
+                className="relative bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 border-l-4 hover:-translate-y-0.5 hover:shadow-md transition-all duration-250 cursor-pointer"
+                style={{ borderLeftColor: getCategoryColor(entry.category) }}
+                onClick={() => handleOpen(true, entry.id)}
               >
-                <CardHeader className="text-white dark:text-black">
-                  <CardTitle className="flex justify-between text-xl md:text-2xl font-semibold ">
-                    <div>{entry.title}</div>
-                    <div className="grid grid-cols-2 gap-5">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={async () => handleFavorite(entry.id)}
-                            className={`p-1 hover:opacity-100 transition ${
-                              entry.isFavorite
-                                ? "text-white dark:text-black" // ✅ white in light mode, black in dark mode
-                                : "text-gray-400" // not favorited yet
-                            }`}
-                          >
-                            <Star
-                              className="w-7 h-7"
-                              style={{
-                                fill: entry.isFavorite
-                                  ? "currentColor"
-                                  : "none",
-                                stroke: "currentColor",
-                              }}
-                            />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            {entry.isFavorite
+                {/* Pin indicator */}
+                {entry.isPinned && (
+                  <Pin className="absolute top-4 right-4 h-4 w-4 text-[var(--primary)]" />
+                )}
+
+                {/* Title */}
+                <h3 className="font-serif text-lg font-medium text-[var(--card-foreground)] line-clamp-2 pr-6">
+                  {entry.title}
+                </h3>
+
+                {/* Category chip */}
+                <span
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider mt-2"
+                  style={getCategoryChipStyle(entry.category)}
+                >
+                  {entry.category}
+                </span>
+
+                {/* Date */}
+                <p className="text-xs text-[var(--muted-foreground)] mt-2">
+                  {formatDate(entry.createdAt)}
+                </p>
+
+                {/* Card footer */}
+                <div
+                  className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--border)]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Left side — Favorite & Pin buttons */}
+                  <div className="flex gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleFavorite(entry.id)}
+                          className="p-1 hover:opacity-100 transition"
+                          aria-label={
+                            entry.isFavorite
                               ? "Remove from favorites"
-                              : "Add to favorites"}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
+                              : "Add to favorites"
+                          }
+                        >
+                          <Star
+                            className="h-5 w-5"
+                            style={{
+                              fill: entry.isFavorite ? "#D4A843" : "none",
+                              stroke: entry.isFavorite
+                                ? "#D4A843"
+                                : "var(--muted-foreground)",
+                              transition: "0.2s ease",
+                            }}
+                          />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          {entry.isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={async () => handlePin(entry.id)}
-                            className={`p-1 hover:opacity-100 transition ${
-                              entry.isPinned
-                                ? "text-white dark:text-black"
-                                : "text-gray-400"
-                            }`}
-                          >
-                            <Pin
-                              className="w-7 h-7"
-                              strokeWidth={entry.isPinned ? 3 : 2}
-                              style={{
-                                fill: entry.isPinned ? "currentColor" : "none",
-                                stroke: "currentColor",
-                                transition: "0.2s ease",
-                              }}
-                            />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{entry.isPinned ? "Unpin" : "Pin to top"}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </CardTitle>
-                  <p className="text-sm ">{entry.category}</p>
-                </CardHeader>
-                <CardFooter className="flex justify-between text-sm text-white dark:text-black">
-                  <span>
-                    Created: {new Date(entry.createdAt).toLocaleDateString()}
-                  </span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handlePin(entry.id)}
+                          className="p-1 hover:opacity-100 transition"
+                          aria-label={
+                            entry.isPinned ? "Unpin" : "Pin to top"
+                          }
+                        >
+                          <Pin
+                            className="h-5 w-5"
+                            style={{
+                              fill: entry.isPinned
+                                ? "var(--primary)"
+                                : "none",
+                              stroke: entry.isPinned
+                                ? "var(--primary)"
+                                : "var(--muted-foreground)",
+                              transition: "0.2s ease",
+                            }}
+                          />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{entry.isPinned ? "Unpin" : "Pin to top"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
 
-                  <div className="flex flex-col md:grid md:grid-cols-2 gap-2">
-                    {/* 📌 Pin Button */}
-
-                    <Button
-                      className="bg-white text-black dark:bg-black dark:text-white hover:bg-muted min-h-[44px]"
+                  {/* Right side — View & Delete */}
+                  <div className="flex gap-3">
+                    <button
                       onClick={() => handleOpen(true, entry.id)}
+                      className="text-[var(--primary)] text-sm font-medium hover:underline"
                       aria-label={`View journal entry: ${entry.title}`}
                     >
                       View
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleDelete(entry.id)}
-                      disabled={loading}
-                      className="text-white dark:bg-destructive min-h-[44px]"
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget(entry.id)}
+                      className="text-[var(--destructive)] text-sm font-medium opacity-60 hover:opacity-100 transition-opacity"
                       aria-label={`Delete journal entry: ${entry.title}`}
                     >
-                      {loading ? "Deleting..." : "Delete"}
-                    </Button>
+                      Delete
+                    </button>
                   </div>
-                </CardFooter>
-              </Card>
-            ))
-          ) : (
-            <p className="col-span-full text-2xl text-center text-gray-400">
-              No journal entries found.
-            </p>
-          )}
-        </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <JournalDialog
           entry={detail}
           open={open}
           onOpenChange={(o) => handleOpen(o)}
         />
+
+        {/* Delete confirmation dialog */}
+        <AlertDialog
+          open={deleteTarget !== null}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setDeleteTarget(null);
+          }}
+        >
+          <AlertDialogContent className="bg-[var(--background)] border border-[var(--border)] rounded-[20px]">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this entry?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This journal entry will be
+                permanently deleted.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-transparent border-[var(--border)]">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-[var(--destructive)] text-white hover:bg-[var(--destructive)]/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <Toaster richColors position="top-center" />
     </MainLayout>

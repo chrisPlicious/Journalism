@@ -1,0 +1,69 @@
+# =========================
+# .NET / ASP.NET Core
+# =========================
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.pdb
+*.dll
+*.exe
+
+# User secrets / local settings
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/secrets.json
+
+# NuGet
+*.nupkg
+**/[Pp]ackages/
+*.nuget.props
+*.nuget.targets
+
+# =========================
+# Node / Vite / React
+# =========================
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.sw?
+*.sublime-*
+.DS_Store
+Thumbs.db
+
+# =========================
+# Docker
+# =========================
+.env
+
+# =========================
+# Tooling / Misc
+# =========================
+.claude/
+.superpowers/
+*.pid

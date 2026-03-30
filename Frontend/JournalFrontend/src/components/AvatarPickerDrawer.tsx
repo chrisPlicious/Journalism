@@ -41,10 +41,12 @@ export default function AvatarPickerDrawer({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">{triggerLabel}</Button>
+        <button className="rounded-full text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)] px-4 py-1.5 mt-3 transition-colors">
+          {triggerLabel}
+        </button>
       </DialogTrigger>
 
-      <DialogContent className="p-6 max-w-md">
+      <DialogContent className="p-6 max-w-md bg-[var(--background)] border border-[var(--border)]">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
             Select Your Avatar
@@ -65,8 +67,8 @@ export default function AvatarPickerDrawer({
                   <Card
                     className={`p-2 border-2 transition-all duration-300 ${
                       selected === src
-                        ? "border-blue-500 scale-105"
-                        : "border-transparent scale-100"
+                        ? "ring-2 ring-[var(--primary)] border-transparent scale-105"
+                        : "border-transparent hover:ring-2 hover:ring-[var(--sage-200)] scale-100"
                     }`}
                   >
                     <CardContent className="flex aspect-square items-center justify-center p-6">
@@ -86,7 +88,7 @@ export default function AvatarPickerDrawer({
 
           <Button
             onClick={handleSave}
-            className="mt-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+            className="mt-6 bg-[var(--primary)] hover:opacity-90 text-white font-semibold"
             disabled={!selected}
           >
             Save Avatar

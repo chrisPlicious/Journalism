@@ -17,7 +17,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-zinc-900">
+    <div className="min-h-screen bg-[var(--background)]">
       <Header
         onSidebarToggle={handleSidebarToggle}
         isSidebarOpen={isSidebarOpen}
@@ -26,7 +26,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       {/* Overlay for mobile */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
           onKeyDown={(e) => {
             if (e.key === "Escape") {
@@ -41,7 +41,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Floating sidebar */}
       <aside
-        className={`fixed top-14 md:top-16 left-0 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] w-full md:w-64 transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-full md:w-64 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] z-50 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label="Main navigation"

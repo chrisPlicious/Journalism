@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MainLayout from "@/components/layouts/main-layout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProfile, updateProfile } from "@/services/api";
-import { useAuth,  } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import AvatarPickerDrawer from "@/components/AvatarPickerDrawer";
-import { SquarePen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Pencil, Lock } from "lucide-react";
 import { type UserProfile } from "@/models/user";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const avatars = [
   "/Avatars/BurstFade.jpg",
@@ -27,7 +26,7 @@ const avatars = [
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { updateAvatar, updateUsername, setProfileComplete } = useAuth();
   const [isEditingDateOfBirth, setIsEditingDateOfBirth] = useState(false);
   const [tempDateOfBirth, setTempDateOfBirth] = useState("");
@@ -45,6 +44,7 @@ export default function ProfilePage() {
         const data = await getProfile();
         setProfile(data);
       } catch (err: any) {
+        setError(err.message || "Failed to load profile");
         toast.error(err.message || "Failed to load profile");
       } finally {
         setLoading(false);
@@ -64,19 +64,19 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="flex-1 flex items-center justify-center min-h-screen p-8">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <Skeleton className="h-8 w-3/4" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Skeleton className="h-20 w-20 rounded-full mx-auto" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-            </CardContent>
-          </Card>
+        <div className="max-w-[600px] mx-auto px-4 md:px-8 py-6 md:py-10">
+          <div className="flex flex-col items-center">
+            <Skeleton className="h-24 w-24 rounded-full" />
+            <Skeleton className="h-4 w-32 mt-4" />
+            <Skeleton className="h-4 w-48 mt-2" />
+          </div>
+          <div className="mt-10 space-y-6">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
         </div>
       </MainLayout>
     );
@@ -85,18 +85,14 @@ export default function ProfilePage() {
   if (error) {
     return (
       <MainLayout>
-        <div className="flex-1 flex items-center justify-center min-h-screen p-8">
-          <Card className="w-full max-w-md">
-            <CardContent className="text-center">
-              <p className="text-red-500 mb-4">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Retry
-              </button>
-            </CardContent>
-          </Card>
+        <div className="max-w-[600px] mx-auto px-4 md:px-8 py-6 md:py-10 text-center">
+          <p className="text-[var(--destructive)] mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-[var(--primary)] text-white px-4 py-2 rounded-lg"
+          >
+            Retry
+          </button>
         </div>
       </MainLayout>
     );
@@ -244,211 +240,252 @@ export default function ProfilePage() {
 
   if (!profile) return null;
 
+  const inputClasses =
+    "w-full bg-[var(--input)] border border-[var(--border)] rounded-[10px] py-2 px-3 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)] outline-none transition-colors";
+
   return (
     <MainLayout>
-      <div className="flex-1 flex items-center justify-center min-h-screen p-8">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <CardTitle>Profile</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex justify-center">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage
-                    src={profile.avatarUrl || "/placeholder.svg"}
-                    alt={profile.userName}
-                  />
-                  <AvatarFallback>
-                    {profile.firstName?.charAt(0).toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
+      <div className="max-w-[600px] mx-auto px-4 md:px-8 py-6 md:py-10">
+        {/* Avatar section */}
+        <div className="flex flex-col items-center mb-10">
+          <Avatar className="h-24 w-24 ring-4 ring-[var(--sage-200)] dark:ring-[var(--accent)]">
+            <AvatarImage
+              src={profile.avatarUrl || "/placeholder.svg"}
+              alt={profile.userName}
+            />
+            <AvatarFallback>
+              {profile.firstName?.charAt(0).toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
 
-              {/* Name */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-start gap-1">
-                  <p className="text-sm text-gray-500">Name</p>
-                  <Button
-                    variant="link"
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                    onClick={handleEditName}
-                  >
-                    <SquarePen className="h-10 w-10" />
-                  </Button>
-                </div>
-                {isEditingName ? (
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="First Name"
-                        value={tempFirstName}
-                        onChange={(e) => setTempFirstName(e.target.value)}
-                        className="border rounded px-2 py-1 flex-1"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Last Name"
-                        value={tempLastName}
-                        onChange={(e) => setTempLastName(e.target.value)}
-                        className="border rounded px-2 py-1 flex-1"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={handleSaveName}>Save</Button>
-                      <Button variant="outline" onClick={handleCancelName}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-medium">
-                      {profile.firstName} {profile.lastName}
-                    </p>
-                  </div>
-                )}
-                {/* <p className="font-medium">
-                  {profile.firstName} {profile.lastName}
-                </p> */}
-              </div>
+          <AvatarPickerDrawer
+            avatars={avatars}
+            onSelect={handleAvatarSelect}
+            triggerLabel="Change Avatar"
+          />
 
-              {/* Usernname */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-start gap-1">
-                  <p className="text-sm text-gray-500">Username</p>
-                  <Button
-                    variant="link"
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                    onClick={handleEditUsername}
-                  >
-                    <SquarePen className="h-10 w-10" />
-                  </Button>
-                </div>
-                {isEditingUsername ? (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={tempUsername}
-                      onChange={(e) => setTempUsername(e.target.value)}
-                      className="border rounded px-2 py-1"
-                    />
-                    <div className="flex gap-2">
-                      <Button onClick={handleSaveUsername}>Save</Button>
-                      <Button variant="outline" onClick={handleCancelUsername}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-medium">{profile.userName}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-start gap-1">
-                  <p className="text-sm text-gray-500">Email</p>
-                  <Button
-                    variant="link"
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                    onClick={() => console.log("Edit email clicked")}
-                  >
-                    <SquarePen className="h-10 w-10" />
-                  </Button>
-                </div>
-                <div>
-                  <p className="font-medium">{profile.email}</p>
-                </div>
-              </div>
-
-              {/* Gender */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-start gap-1">
-                  <p className="text-sm text-gray-500">Gender</p>
-                  <Button
-                    variant="link"
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                    onClick={handleEditGender}
-                  >
-                    <SquarePen className="h-10 w-10" />
-                  </Button>
-                </div>
-                {isEditingGender ? (
-                  <div className="space-y-2">
-                    <select
-                      value={tempGender}
-                      onChange={(e) => setTempGender(e.target.value)}
-                      className="border rounded px-2 py-1"
-                    >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    <div className="flex gap-2">
-                      <Button onClick={handleSaveGender}>Save</Button>
-                      <Button variant="outline" onClick={handleCancelGender}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-medium">{profile.gender}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Date of Birth */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-start gap-1">
-                  <p className="text-sm text-gray-500">Date of Birth</p>
-                  <Button
-                    variant="link"
-                    className="text-gray-400 hover:text-blue-500 transition-colors"
-                    onClick={handleEditDateOfBirth}
-                  >
-                    <SquarePen className="h-10 w-10" />
-                  </Button>
-                </div>
-                {isEditingDateOfBirth ? (
-                  <div className="space-y-2">
-                    <input
-                      type="date"
-                      value={tempDateOfBirth}
-                      onChange={(e) => setTempDateOfBirth(e.target.value)}
-                      className="border rounded px-2 py-1"
-                    />
-                    <div className="flex gap-2">
-                      <Button onClick={handleSaveDateOfBirth}>Save</Button>
-                      <Button
-                        variant="outline"
-                        onClick={handleCancelDateOfBirth}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-medium">
-                      {new Date(profile.dateOfBirth).toLocaleDateString()}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <AvatarPickerDrawer
-                avatars={avatars}
-                onSelect={handleAvatarSelect}
-                triggerLabel="Change Avatar"
-              />
-            </CardContent>
-          </Card>
-          <Toaster richColors position="top-center" />
+          <h1 className="font-serif text-2xl font-semibold text-center mt-4 text-[var(--foreground)]">
+            {profile.firstName} {profile.lastName}
+          </h1>
+          <p className="text-sm text-[var(--muted-foreground)] text-center">
+            {profile.email}
+          </p>
         </div>
+
+        {/* Profile fields */}
+        <div>
+          {/* Name */}
+          <div className="py-4 border-b border-[var(--border)]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
+                Name
+              </span>
+              {!isEditingName && (
+                <button
+                  onClick={handleEditName}
+                  className="text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+                  aria-label="Edit name"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            {isEditingName ? (
+              <div className="mt-2 space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    value={tempFirstName}
+                    onChange={(e) => setTempFirstName(e.target.value)}
+                    className={inputClasses}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    value={tempLastName}
+                    onChange={(e) => setTempLastName(e.target.value)}
+                    className={inputClasses}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveName}
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancelName}
+                    className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-base font-medium text-[var(--foreground)] mt-1">
+                {profile.firstName} {profile.lastName}
+              </p>
+            )}
+          </div>
+
+          {/* Username */}
+          <div className="py-4 border-b border-[var(--border)]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
+                Username
+              </span>
+              {!isEditingUsername && (
+                <button
+                  onClick={handleEditUsername}
+                  className="text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+                  aria-label="Edit username"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            {isEditingUsername ? (
+              <div className="mt-2 space-y-2">
+                <input
+                  type="text"
+                  value={tempUsername}
+                  onChange={(e) => setTempUsername(e.target.value)}
+                  className={inputClasses}
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveUsername}
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancelUsername}
+                    className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-base font-medium text-[var(--foreground)] mt-1">
+                {profile.userName}
+              </p>
+            )}
+          </div>
+
+          {/* Email (non-editable) */}
+          <div className="py-4 border-b border-[var(--border)]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
+                Email
+              </span>
+              <Lock className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
+            </div>
+            <p className="text-base font-medium text-[var(--foreground)] mt-1">
+              {profile.email}
+            </p>
+          </div>
+
+          {/* Gender */}
+          <div className="py-4 border-b border-[var(--border)]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
+                Gender
+              </span>
+              {!isEditingGender && (
+                <button
+                  onClick={handleEditGender}
+                  className="text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+                  aria-label="Edit gender"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            {isEditingGender ? (
+              <div className="mt-2 space-y-2">
+                <select
+                  value={tempGender}
+                  onChange={(e) => setTempGender(e.target.value)}
+                  className={inputClasses}
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveGender}
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancelGender}
+                    className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-base font-medium text-[var(--foreground)] mt-1">
+                {profile.gender}
+              </p>
+            )}
+          </div>
+
+          {/* Date of Birth */}
+          <div className="py-4 border-b border-[var(--border)]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
+                Date of Birth
+              </span>
+              {!isEditingDateOfBirth && (
+                <button
+                  onClick={handleEditDateOfBirth}
+                  className="text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
+                  aria-label="Edit date of birth"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            {isEditingDateOfBirth ? (
+              <div className="mt-2 space-y-2">
+                <input
+                  type="date"
+                  value={tempDateOfBirth}
+                  onChange={(e) => setTempDateOfBirth(e.target.value)}
+                  className={inputClasses}
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveDateOfBirth}
+                    className="bg-[var(--primary)] text-white rounded-lg px-3 py-1 text-sm hover:opacity-90 transition-all active:scale-[0.98]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancelDateOfBirth}
+                    className="text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-base font-medium text-[var(--foreground)] mt-1">
+                {new Date(profile.dateOfBirth).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+      <Toaster richColors position="top-center" />
     </MainLayout>
   );
 }

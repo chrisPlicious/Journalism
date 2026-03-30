@@ -1,11 +1,18 @@
 import { getProfile } from "@/services/api";
+import { jwtDecode } from "jwt-decode";
 import React, {
   createContext,
   useContext,
   useState,
   useEffect,
+  useCallback,
   type ReactNode,
 } from "react";
+
+interface JwtPayload {
+  exp: number;
+  [key: string]: unknown;
+}
 
 interface AuthContextType {
   token: string | null;
@@ -29,12 +36,34 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    if (!decoded.exp) return false;
+    // Add 10-second buffer to avoid edge-case race conditions
+    return decoded.exp * 1000 < Date.now() + 10_000;
+  } catch {
+    return true;
+  }
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
-  );
+  const [token, setToken] = useState<string | null>(() => {
+    const stored = localStorage.getItem("token");
+    if (stored && isTokenExpired(stored)) {
+      // Token already expired on load — clear it
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("email");
+      localStorage.removeItem("avatarUrl");
+      localStorage.removeItem("isProfileComplete");
+      sessionStorage.removeItem("profileDialogShown");
+      return null;
+    }
+    return stored;
+  });
   const [username, setUsername] = useState<string | null>(
     localStorage.getItem("username")
   );
@@ -49,6 +78,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     return stored === "true" ? true : stored === "false" ? false : null;
   });
 
+  const logout = useCallback(() => {
+    setToken(null);
+    setUsername(null);
+    setEmail(null);
+    setIsProfileComplete(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    localStorage.removeItem("avatarUrl");
+    localStorage.removeItem("isProfileComplete");
+    sessionStorage.removeItem("profileDialogShown");
+  }, []);
+
+  // Periodically check token expiry (every 60 seconds)
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(() => {
+      if (isTokenExpired(token)) {
+        logout();
+        window.location.href = "/login";
+      }
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, [token, logout]);
 
   const login = (
     newToken: string,
@@ -69,19 +122,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     if (newIsProfileComplete !== undefined) {
       localStorage.setItem("isProfileComplete", String(newIsProfileComplete));
     }
-  };
-
-  const logout = () => {
-    setToken(null);
-    setUsername(null);
-    setEmail(null);
-    setIsProfileComplete(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    localStorage.removeItem("email");
-    localStorage.removeItem("avatarUrl");
-    localStorage.removeItem("isProfileComplete");
-    sessionStorage.removeItem("profileDialogShown");
   };
 
   const updateAvatar = (newAvatarUrl: string) => {

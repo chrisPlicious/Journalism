@@ -1,27 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useNavigate, useParams } from "react-router-dom";
 import MainLayout from "../components/layouts/main-layout";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectSeparator,
-} from "@/components/ui/select";
-import { useParams } from "react-router-dom";
-import { updateJournal, getJournalById } from "../services/api"; // Use your API
+import { useTheme } from "../context/themeContext";
+import { updateJournal, getJournalById } from "../services/api";
 import ShadcnTextEditor from "@/components/TextEditor/TextEditor";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
+import { CATEGORIES } from "@/lib/categories";
 
 export default function EditJournal() {
   const [title, setTitle] = useState("");
@@ -50,7 +35,7 @@ export default function EditJournal() {
         })
         .catch((err) => {
           console.error(err);
-          toast.error("Failed to load journal ❌");
+          toast.error("Failed to load journal");
         })
         .finally(() => setLoading(false));
     }
@@ -71,7 +56,6 @@ export default function EditJournal() {
     if (newErrors.content) missingFields.push("Content is required");
 
     if (missingFields.length > 0) {
-      // Trigger a Sonner toast for each missing field
       missingFields.forEach((msg) => {
         toast.error(msg, { duration: 3000 });
       });
@@ -82,7 +66,7 @@ export default function EditJournal() {
       setLoading(true);
       await updateJournal(Number(id), { title, category, content });
       toast.success("Journal entry updated successfully");
-      navigate("/entries"); // Navigate back after update
+      navigate("/entries");
     } catch (err) {
       console.error(err);
       toast.error("Failed to update journal");
@@ -91,118 +75,113 @@ export default function EditJournal() {
     }
   };
 
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
     <MainLayout>
       <Toaster richColors position="top-center" />
-      <div className="flex flex-1 items-center justify-center min-h-screen">
-        <Card className="w-7xl shadow-xl bg-zinc-100 dark:bg-zinc-800">
-          <CardHeader>
-            <CardTitle className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance text-gray-900 dark:text-white">
-              Edit Journal Entry
-            </CardTitle>
-          </CardHeader>
-          {/* <CardContent className="grid grid-cols-3 space-y-0 gap-10 mt-4 mx-4">
-              <label className="scroll-m-20 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Title
-              </label>
-              <label className="scroll-m-20 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Category
-              </label>
-            </CardContent> */}
-          <CardContent className="grid grid-cols-3 space-y-4 gap-10 mx-4">
-            <Input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className={`bg-white dark:bg-zinc-700 text-gray-900 dark:text-white ${
-                error.title ? "border-red-500 focus-visible:ring-red-500" : ""
-              }`}
-            />
-            <Select
-              value={category}
-              onValueChange={(val) => {
-                if (val === "__clear__") {
-                  setCategory(""); // reset to empty → shows placeholder
-                } else {
-                  setCategory(val);
-                }
-              }}
-            >
-              <SelectTrigger
-                className={`w-full text-1xl bg-white dark:bg-zinc-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 ${
-                  error.category ? "border-red-500 focus:ring-red-500" : ""
-                }`}
-              >
-                <SelectValue placeholder="Choose a category" />
-              </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-zinc-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
-                <SelectItem
-                  value="work"
-                  className="text-gray-900 dark:text-white"
-                >
-                  Work
-                </SelectItem>
-                <SelectItem
-                  value="personal"
-                  className="text-gray-900 dark:text-white"
-                >
-                  Personal
-                </SelectItem>
-                <SelectItem
-                  value="study"
-                  className="text-gray-900 dark:text-white"
-                >
-                  Study
-                </SelectItem>
-                <SelectItem
-                  value="travel"
-                  className="text-gray-900 dark:text-white"
-                >
-                  Travel
-                </SelectItem>
+      <div className="max-w-3xl mx-auto px-4 md:px-8 py-6 md:py-10">
+        {/* Overline */}
+        <div className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-foreground)] mb-4">
+          Editing Entry
+        </div>
 
-                <SelectSeparator />
-                <SelectItem
-                  value="__clear__"
-                  className="text-red-500 font-bold flex justify-center"
-                >
-                  Clear
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </CardContent>
-          <CardContent>
-            {/* <label className="scroll-m-20 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                Content
-              </label> */}
-            <ShadcnTextEditor
-              value={content}
-              onChange={setContent}
-              error={error.content}
-            />
-            {error.content && (
-              <p className="text-red-500 dark:text-red-400">
-                Content is required
-              </p>
-            )}
-          </CardContent>
-          <CardFooter className="mx-4 my-4 grid grid-cols-2 gap-4">
-            <Button
-              type="button"
+        {/* Title input */}
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Give your entry a title..."
+          className={`w-full bg-transparent border-0 border-b border-[var(--border)] focus:border-[var(--primary)] focus:outline-none focus:ring-0 font-serif text-3xl font-semibold placeholder:text-[var(--muted-foreground)] pb-3 text-[var(--foreground)] ${
+            error.title ? "border-b-[var(--destructive)]" : ""
+          }`}
+        />
+
+        {/* Category pills */}
+        <div className="flex flex-wrap gap-2 mt-4">
+          {CATEGORIES.map((cat) => {
+            const isSelected = category === cat.value;
+            const activeColor = isDark ? cat.darkColor : cat.color;
+            return (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() =>
+                  setCategory(isSelected ? "" : cat.value)
+                }
+                className="rounded-full py-1.5 px-4 text-sm font-medium border cursor-pointer transition-colors"
+                style={
+                  isSelected
+                    ? {
+                        backgroundColor: cat.bg,
+                        borderColor: activeColor,
+                        color: activeColor,
+                      }
+                    : {
+                        borderColor: "var(--border)",
+                        color: "var(--muted-foreground)",
+                        backgroundColor: "transparent",
+                      }
+                }
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                      "var(--muted)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                      "transparent";
+                  }
+                }}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Text Editor */}
+        <div className="mt-6">
+          <ShadcnTextEditor
+            value={content}
+            onChange={setContent}
+            error={error.content}
+          />
+          {error.content && (
+            <p className="text-[var(--destructive)] text-sm mt-1">Content is required</p>
+          )}
+        </div>
+
+        {/* Footer buttons */}
+        <div className="mt-8">
+          <div className="grid grid-cols-2 gap-3">
+            <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full bg-black hover:bg-gray-600 dark:bg-white dark:hover:text-black"
+              className="bg-[var(--primary)] text-white hover:bg-[var(--sage-500)] rounded-[10px] py-3 font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
             >
               {loading ? "Saving..." : "Save Changes"}
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={() => navigate("/entries")}
-              className="bg-black hover:bg-gray-600 dark:bg-white dark:hover:text-black"
+              className="border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)] rounded-[10px] py-3 font-semibold transition-colors"
             >
               Cancel
-            </Button>
-          </CardFooter>
-        </Card>
+            </button>
+          </div>
+          <button
+            onClick={() => {
+              // Navigate back — deletion can be handled from the entries page
+              toast.error("Delete functionality available from entries page");
+            }}
+            className="text-sm text-[var(--destructive)] hover:underline text-center mt-4 block w-full transition-colors"
+          >
+            Delete this entry
+          </button>
+        </div>
       </div>
     </MainLayout>
   );

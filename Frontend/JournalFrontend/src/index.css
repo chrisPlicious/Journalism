@@ -46,82 +46,122 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
+  --background: #FDFCFA;
+  --foreground: #1C1A17;
+  --card: #F8F6F1;
+  --card-foreground: #2D2A25;
+  --popover: #F8F6F1;
+  --popover-foreground: #2D2A25;
+  --primary: #7C9885;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0F5F1;
+  --secondary-foreground: #465C4D;
+  --muted: #F0EDE5;
+  /* NOTE: Spec says #8A8479 but that fails WCAG AA for body text. Using #6B665D per accessibility fix. */
+  --muted-foreground: #6B665D;
+  --accent: #D9E5DC;
+  --accent-foreground: #354839;
+  --destructive: #C75450;
+  --border: #E4DFD5;
+  --input: #F0EDE5;
+  --ring: #93B59B;
+  --sidebar: #F8F6F1;
+  --sidebar-foreground: #2D2A25;
+  --sidebar-primary: #7C9885;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #D9E5DC;
+  --sidebar-accent-foreground: #354839;
+  --sidebar-border: #E4DFD5;
+  --sidebar-ring: #93B59B;
+  --chart-1: #7C9885;
+  --chart-2: #B8A9D4;
+  --chart-3: #D4C9A9;
+  --chart-4: #A9C4D4;
+  --chart-5: #A9D4B8;
+
+  /* Sage scale */
+  --sage-50: #F0F5F1;
+  --sage-100: #D9E5DC;
+  --sage-200: #B5CCBA;
+  --sage-300: #93B59B;
+  --sage-400: #7C9885;
+  --sage-500: #6A8572;
+  --sage-600: #587260;
+  --sage-700: #465C4D;
+  --sage-800: #354839;
+  --sage-900: #243326;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(44, 42, 37, 0.04), 0 1px 2px rgba(44, 42, 37, 0.06);
+  --shadow-md: 0 4px 12px rgba(44, 42, 37, 0.06), 0 2px 4px rgba(44, 42, 37, 0.04);
+  --shadow-lg: 0 12px 32px rgba(44, 42, 37, 0.08), 0 4px 8px rgba(44, 42, 37, 0.04);
+  --shadow-xl: 0 24px 48px rgba(44, 42, 37, 0.10), 0 8px 16px rgba(44, 42, 37, 0.05);
+  --shadow-sage-glow: 0 0 0 3px rgba(124, 152, 133, 0.25);
+  --shadow-sage-glow-lg: 0 0 20px rgba(124, 152, 133, 0.15);
+
+  /* Category colors */
+  --category-personal: #B8A9D4;
+  --category-work: #A9C4D4;
+  --category-study: #D4C9A9;
+  --category-travel: #A9D4B8;
 }
 
 .dark {
-  --background: oklch(0% 0 0); /* Pure black background */
-  --foreground: oklch(0.985 0 0); /* Almost pure white text */
+  --background: #0F1A14;
+  --foreground: #D4E2D7;
+  --card: #1A2520;
+  --card-foreground: #ECF2ED;
+  --popover: #1A2520;
+  --popover-foreground: #ECF2ED;
+  --primary: #7C9885;
+  --primary-foreground: #ECF2ED;
+  --secondary: #243530;
+  --secondary-foreground: #A8C4AE;
+  --muted: #243530;
+  --muted-foreground: #4D665C;
+  --accent: #2E4038;
+  --accent-foreground: #D4E2D7;
+  --destructive: #E06B67;
+  --border: #2E4038;
+  --input: #243530;
+  --ring: #7C9885;
+  --sidebar: #1A2520;
+  --sidebar-foreground: #D4E2D7;
+  --sidebar-primary: #7C9885;
+  --sidebar-primary-foreground: #ECF2ED;
+  --sidebar-accent: #2E4038;
+  --sidebar-accent-foreground: #D4E2D7;
+  --sidebar-border: #2E4038;
+  --sidebar-ring: #7C9885;
+  --chart-1: #7C9885;
+  --chart-2: #8B7AB3;
+  --chart-3: #B8AD7A;
+  --chart-4: #7AA3B8;
+  --chart-5: #7AB88B;
 
-  --card: oklch(0.08 0 0); /* Slightly lifted black for cards */
-  --card-foreground: oklch(0.985 0 0);
+  --sage-50: #2E4038;
+  --sage-100: #3A5048;
+  --sage-200: #4D665C;
+  --sage-300: #7C9885;
+  --sage-400: #7C9885;
+  --sage-500: #A8C4AE;
+  --sage-600: #D4E2D7;
+  --sage-700: #ECF2ED;
+  --sage-800: #D4E2D7;
+  --sage-900: #ECF2ED;
 
-  --popover: oklch(0.08 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.20), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.24), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.30), 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.35), 0 8px 16px rgba(0, 0, 0, 0.20);
+  --shadow-sage-glow: 0 0 0 3px rgba(124, 152, 133, 0.35);
+  --shadow-sage-glow-lg: 0 0 24px rgba(124, 152, 133, 0.20);
 
-  --primary: oklch(0.9 0 0); /* Bright text/button accent */
-  --primary-foreground: oklch(0.1 0 0);
-
-  --secondary: oklch(0.15 0 0); /* Subtle gray-black */
-  --secondary-foreground: oklch(0.985 0 0);
-
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.75 0 0);
-
-  --accent: oklch(0.12 0 0); /* Use for slightly raised UI sections */
-  --accent-foreground: oklch(0.985 0 0);
-
-  --destructive: oklch(0.6 0.24 27.325);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.7 0 0);
-
-  /* Optional – chart colors and sidebar kept for consistency */
-  --chart-1: oklch(0.55 0.23 264.376);
-  --chart-2: oklch(0.68 0.17 162.48);
-  --chart-3: oklch(0.76 0.18 70.08);
-  --chart-4: oklch(0.62 0.26 303.9);
-  --chart-5: oklch(0.64 0.24 16.439);
-
-  --sidebar: oklch(0.08 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.55 0.23 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.15 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.7 0 0);
+  --category-personal: #8B7AB3;
+  --category-work: #7AA3B8;
+  --category-study: #B8AD7A;
+  --category-travel: #7AB88B;
 }
 
 @layer base {
@@ -131,4 +171,50 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Typography */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: 'Lora', Georgia, serif;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skeleton shimmer with sage tint */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Subtle fade-in for page content */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 300ms ease-out;
+}
+
+/* Theme toggle icon spin */
+@keyframes icon-spin {
+  from { transform: rotate(-90deg); opacity: 0; }
+  to { transform: rotate(0deg); opacity: 1; }
+}
+
+.animate-icon-spin {
+  animation: icon-spin 500ms ease-out;
 }

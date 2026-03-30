@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet ne)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet add:*)",
+      "Bash(npx tsc:*)",
+      "Bash(dotnet test:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vitest:*)",
+      "Bash(bash \"C:\\\\Users\\\\Chris Paul\\\\.claude\\\\plugins\\\\cache\\\\superpowers-marketplace\\\\superpowers\\\\5.0.4\\\\skills\\\\brainstorming\\\\scripts\\\\start-server.sh\" --project-dir \"C:\\\\Users\\\\Chris Paul\\\\Documents\\\\journal\\\\Journalism\")",
+      "Bash(node --input-type=commonjs -e \"require\\(''C:/Users/Chris Paul/.claude/plugins/cache/superpowers-marketplace/superpowers/5.0.4/skills/brainstorming/scripts/server.js''\\)\")",
+      "Bash(bash start-server.sh --project-dir \"C:\\\\Users\\\\Chris Paul\\\\Documents\\\\journal\\\\Journalism\")"
+    ]
+  }
+}

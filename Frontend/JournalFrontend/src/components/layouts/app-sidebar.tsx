@@ -20,32 +20,39 @@ export default function AppSidebar() {
 
   return (
     <SidebarProvider>
-      <Sidebar className="border-r border-border w-full">
-        <SidebarContent className="bg-white dark:bg-gray-900">
+      <Sidebar className="border-r border-[var(--sidebar-border)] w-full">
+        <SidebarContent className="bg-[var(--sidebar)]">
           <SidebarGroup>
             <SidebarGroupContent>
-              <SidebarMenu className="py-4 md:py-6 lg:py-7">
+              <SidebarMenu className="py-4 space-y-1">
                 {items.map((item) => (
-                  <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton size="default" asChild className="md:h-12 md:px-6 lg:h-14 lg:px-8">
+                  <SidebarMenuItem key={item.to} className="mx-2">
+                    <SidebarMenuButton size="default" asChild>
                       <NavLink
                         to={item.to}
                         end={item.to === "/"}
                         className={({ isActive }) =>
                           `
-                      flex items-center gap-3 px-3 py-3 rounded-lg text-sm md:text-base lg:text-lg font-semibold
+                      flex items-center gap-3 py-2.5 px-4 rounded-[10px] text-[15px] font-medium
                       transition-colors duration-150 min-h-[44px]
                       ${
                         isActive
-                          ? "bg-accent text-accent-foreground "
-                          : "bg-card text-foreground hover:bg-accent hover:text-accent-foreground"
+                          ? "bg-[var(--sage-100)] text-[var(--sage-700)]"
+                          : "bg-transparent text-[var(--muted-foreground)] hover:bg-[var(--sage-50)] hover:text-[var(--foreground)]"
                       }
                       `
                         }
                       >
                         {({ isActive }) => (
                           <>
-                            <item.icon className="h-8 w-8 md:h-10 md:w-10 lg:h-12 lg:w-12" aria-hidden="true" />
+                            <item.icon
+                              className={`h-5 w-5 flex-shrink-0 ${
+                                isActive
+                                  ? "text-[var(--sage-400)]"
+                                  : "text-[var(--muted-foreground)]"
+                              }`}
+                              aria-hidden="true"
+                            />
                             <span>{item.title}</span>
                             {isActive && <span className="sr-only">(current page)</span>}
                           </>
